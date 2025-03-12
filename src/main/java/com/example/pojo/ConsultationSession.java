@@ -25,7 +25,7 @@ public class ConsultationSession {
     private String chatLog;
 
     @Enumerated(EnumType.STRING)
-    private SessionStatus sessionStatus;
+    private ConSessionStatus consessionStatus;
     private Byte rating;
     private String feedback;
 

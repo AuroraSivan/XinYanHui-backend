@@ -1,6 +1,5 @@
 package com.example.pojo;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -15,7 +14,7 @@ public class PsychologicalEvaluation {
     private User user;
 
     private LocalDateTime evaluationDate;
-    private JsonNode questionnaireResults; // You might need to adjust this based on your JSON handling library
+    private String questionnaireResults;
     private String autoReport;
     private Integer riskLevel;
     private String suggestions;
@@ -23,7 +22,7 @@ public class PsychologicalEvaluation {
     public PsychologicalEvaluation() {
     }
 
-    public PsychologicalEvaluation(User user, LocalDateTime evaluationDate, JsonNode questionnaireResults, String autoReport, Integer riskLevel, String suggestions) {
+    public PsychologicalEvaluation(User user, LocalDateTime evaluationDate,String questionnaireResults, String autoReport, Integer riskLevel, String suggestions) {
         this.user = user;
         this.evaluationDate = evaluationDate;
         this.questionnaireResults = questionnaireResults;
@@ -56,11 +55,11 @@ public class PsychologicalEvaluation {
         this.evaluationDate = evaluationDate;
     }
 
-    public JsonNode getQuestionnaireResults() {
+    public String getQuestionnaireResults() {
         return questionnaireResults;
     }
 
-    public void setQuestionnaireResults(JsonNode questionnaireResults) {
+    public void setQuestionnaireResults(String questionnaireResults) {
         this.questionnaireResults = questionnaireResults;
     }
 
