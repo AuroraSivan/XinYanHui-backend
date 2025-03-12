@@ -5,6 +5,8 @@ import com.example.repository.UserDao;
 import com.example.service.UserService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -28,7 +30,13 @@ public class UserServiceImpl implements UserService {
             // 无法注册
             return null;
         }else{
-            //返回创建好的用户对象(带uid)
+            // 设置注册日期为当前时间
+            user.setRegister_date(new Date());
+
+            // 生成随机盐值
+            user.setSalt(UUID.randomUUID().toString());
+
+            // 保存用户并返回创建好的用户对象(带uid)
             User newUser = userDao.save(user);
             newUser.setPassword("");
             return newUser;

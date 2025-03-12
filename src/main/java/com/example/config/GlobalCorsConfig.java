@@ -19,7 +19,7 @@ public class GlobalCorsConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/register").permitAll()
+                        .requestMatchers( "/user/login", "/user/register").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();
