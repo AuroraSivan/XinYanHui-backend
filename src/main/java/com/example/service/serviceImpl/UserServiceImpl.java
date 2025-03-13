@@ -13,16 +13,31 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     private UserDao userDao;
+
     @Override
-    public User loginService(String uname, String password) {
-        // 如果账号密码都对则返回登录的用户对象，若有一个错误则返回null
-        User user = userDao.findByUsernameAndPassword(uname, password);
+    public User loginService(Integer type, String s, String password) {
+        User user = null;
+        if(type == 0){//username
+            user = userDao.findByUsernameAndPassword(s, password);
+        }
+        if(type == 1) {//phone
+            user = userDao.findByPhoneAndPassword(s, password);
+        }
+        if(type == 2){//email
+            user = userDao.findByEmailAndPassword(s, password);
+        }
         // 重要信息置空
         if (user != null) {
             user.setPassword("");
         }
         return user;
     }
+
+    @Override
+    public User loginService(String uname, String password) {
+        return null;
+    }
+
     @Override
     public User registerService (User user){
         //当新用户的用户名已存在时
@@ -33,7 +48,7 @@ public class UserServiceImpl implements UserService {
             // 设置注册日期为当前时间
             user.setRegister_date(new Date());
 
-            // 生成随机盐值
+            // 生成随机值
             user.setSalt(UUID.randomUUID().toString());
 
             // 保存用户并返回创建好的用户对象(带uid)
