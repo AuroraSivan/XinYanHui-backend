@@ -17,7 +17,7 @@ public class UserController {
     public Result<User> loginController(@RequestBody Map<String, Object> params) {
         // 解析参数
         Integer type = (Integer) params.get("type");
-        String account = (String) params.get("s");
+        String account = (String) params.get("account");
         String password = (String) params.get("password");
 
         // 参数校验

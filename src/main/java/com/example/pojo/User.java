@@ -12,6 +12,8 @@ public class User {
     private Integer user_id;
 
     private String username;
+
+    @Column(name = "password_Hashwithsalt")
     private String password;
     private String salt;
     private String email;

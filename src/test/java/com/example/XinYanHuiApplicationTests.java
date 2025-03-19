@@ -4,6 +4,7 @@ import com.example.pojo.Admin;
 import com.example.pojo.Consultant;
 import com.example.pojo.Supervisor;
 import com.example.repository.AdminDao;
+import com.example.repository.UserDao;
 import com.example.service.AdminService;
 import com.example.service.ConsultantService;
 import com.example.service.SupervisorService;
@@ -26,6 +27,9 @@ class XinYanHuiApplicationTests {
 
     @Autowired
     private SupervisorService supervisorService;
+
+    @Autowired
+    private UserDao userDao;
 
     @Test
     void contextLoads() {
@@ -60,6 +64,5 @@ class XinYanHuiApplicationTests {
         Result<Consultant> result = consultantService.loginService(1, "a12345");
         System.out.println(result);
     }
-
 
 }

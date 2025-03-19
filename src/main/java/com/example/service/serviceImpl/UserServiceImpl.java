@@ -3,6 +3,7 @@ package com.example.service.serviceImpl;
 import com.example.pojo.User;
 import com.example.repository.UserDao;
 import com.example.service.UserService;
+import com.example.utils.PasswordHashWithSalt;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import java.util.Date;
@@ -18,12 +19,33 @@ public class UserServiceImpl implements UserService {
     public User loginService(Integer type, String s, String password) {
         User user = null;
         if(type == 0){//username
+            user = userDao.findByUsername(s);
+            try{
+                String salt = user.getSalt();
+                password = PasswordHashWithSalt.hashPassword(password, salt);
+            } catch (Exception e) {
+                return null;
+            }
             user = userDao.findByUsernameAndPassword(s, password);
         }
         if(type == 1) {//phone
+            user = userDao.findByPhone(s);
+            try{
+                String salt = user.getSalt();
+                password = PasswordHashWithSalt.hashPassword(password, salt);
+            } catch (Exception e) {
+                return null;
+            }
             user = userDao.findByPhoneAndPassword(s, password);
         }
         if(type == 2){//email
+            user = userDao.findByEmail(s);
+            try{
+                String salt = user.getSalt();
+                password = PasswordHashWithSalt.hashPassword(password, salt);
+            } catch (Exception e) {
+                return null;
+            }
             user = userDao.findByEmailAndPassword(s, password);
         }
         // 重要信息置空
@@ -49,12 +71,19 @@ public class UserServiceImpl implements UserService {
             user.setRegister_date(new Date());
 
             // 生成随机值
-            user.setSalt(UUID.randomUUID().toString());
+            user.setSalt(PasswordHashWithSalt.generateSalt());
+            // 对密码进行哈希处理
+            try{
+                String hashedPassword = PasswordHashWithSalt.hashPassword(user.getPassword(), user.getSalt());
+                user.setPassword(hashedPassword);
+                // 保存用户并返回创建好的用户对象(带uid)
+                User newUser = userDao.save(user);
+                newUser.setPassword("");
+                return newUser;
+            } catch (Exception e) {
+                return null;
+            }
 
-            // 保存用户并返回创建好的用户对象(带uid)
-            User newUser = userDao.save(user);
-            newUser.setPassword("");
-            return newUser;
         }
     }
 }
