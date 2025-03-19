@@ -6,33 +6,43 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
+@Table(name = "appointments")
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer appointmentId;
 
-    @ManyToOne
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Integer userId;
 
-    @ManyToOne
-    private Consultant consultant;
+    @Column(name = "consultant_id", nullable = false)
+    private Integer consultantId;
 
+    @Column(name = "appointment_date", nullable = false)
     private LocalDate appointmentDate;
+
+    @Column(name = "appointment_time", nullable = false)
     private LocalTime appointmentTime;
+
+    @Column(name = "booking_date", nullable = false, updatable = false)
     private LocalDateTime bookingDate = LocalDateTime.now();
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private AppointmentStatus status;
 
+    @Column(name = "cancellation_time", nullable = true)
     private LocalDateTime cancellationTime;
+
+    @Column(name = "cancellation_reason", nullable = true)
     private String cancellationReason;
 
     public Appointment() {
     }
 
-    public Appointment(User user, Consultant consultant, LocalDate appointmentDate, LocalTime appointmentTime, AppointmentStatus status) {
-        this.user = user;
-        this.consultant = consultant;
+    public Appointment(Integer userId, Integer consultantId, LocalDate appointmentDate, LocalTime appointmentTime, AppointmentStatus status) {
+        this.userId = userId;
+        this.consultantId = consultantId;
         this.appointmentDate = appointmentDate;
         this.appointmentTime = appointmentTime;
         this.status = status;
@@ -46,20 +56,20 @@ public class Appointment {
         this.appointmentId = appointmentId;
     }
 
-    public User getUser() {
-        return user;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
-    public Consultant getConsultant() {
-        return consultant;
+    public Integer getConsultantId() {
+        return consultantId;
     }
 
-    public void setConsultant(Consultant consultant) {
-        this.consultant = consultant;
+    public void setConsultantId(Integer consultantId) {
+        this.consultantId = consultantId;
     }
 
     public LocalDate getAppointmentDate() {
@@ -114,8 +124,8 @@ public class Appointment {
     public String toString() {
         return "Appointment{" +
                 "appointmentId=" + appointmentId +
-                ", user=" + user +
-                ", consultant=" + consultant +
+                ", userId=" + userId +
+                ", consultantId=" + consultantId +
                 ", appointmentDate=" + appointmentDate +
                 ", appointmentTime=" + appointmentTime +
                 ", bookingDate=" + bookingDate +
@@ -125,4 +135,3 @@ public class Appointment {
                 '}';
     }
 }
-
