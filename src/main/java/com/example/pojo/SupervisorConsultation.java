@@ -1,10 +1,12 @@
 package com.example.pojo;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Data
 public class SupervisorConsultation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,72 +37,5 @@ public class SupervisorConsultation {
         this.chatLog = chatLog;
     }
 
-    public Integer getRecordId() {
-        return recordId;
-    }
 
-    public void setRecordId(Integer recordId) {
-        this.recordId = recordId;
-    }
-
-    public Consultant getConsultant() {
-        return consultant;
-    }
-
-    public void setConsultant(Consultant consultant) {
-        this.consultant = consultant;
-    }
-
-    public Supervisor getSupervisor() {
-        return supervisor;
-    }
-
-    public void setSupervisor(Supervisor supervisor) {
-        this.supervisor = supervisor;
-    }
-
-    public ConsultationSession getSession() {
-        return session;
-    }
-
-    public void setSession(ConsultationSession session) {
-        this.session = session;
-    }
-
-    public LocalDateTime getRequestTime() {
-        return requestTime;
-    }
-
-    public void setRequestTime(LocalDateTime requestTime) {
-        this.requestTime = requestTime;
-    }
-
-    public LocalDateTime getResponseTime() {
-        return responseTime;
-    }
-
-    public void setResponseTime(LocalDateTime responseTime) {
-        this.responseTime = responseTime;
-    }
-
-    public String getChatLog() {
-        return chatLog;
-    }
-
-    public void setChatLog(String chatLog) {
-        this.chatLog = chatLog;
-    }
-
-    @Override
-    public String toString() {
-        return "SupervisorConsultation{" +
-                "recordId=" + recordId +
-                ", consultant=" + consultant +
-                ", supervisor=" + supervisor +
-                ", session=" + session +
-                ", requestTime=" + requestTime +
-                ", responseTime=" + responseTime +
-                ", chatLog='" + chatLog + '\'' +
-                '}';
-    }
 }
