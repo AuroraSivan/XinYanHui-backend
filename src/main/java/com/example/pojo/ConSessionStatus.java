@@ -3,7 +3,7 @@ package com.example.pojo;
 public enum ConSessionStatus {
     ACTIVE("active"),
     COMPLETED("completed"),
-    TERMINATED("terminated");
+    READY("ready");
 
     private final String value;
 

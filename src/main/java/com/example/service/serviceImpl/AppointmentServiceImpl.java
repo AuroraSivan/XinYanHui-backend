@@ -4,12 +4,15 @@ import com.example.pojo.Appointment;
 import com.example.pojo.AppointmentStatus;
 import com.example.repository.AppointmentRepository;
 import com.example.service.AppointmentService;
+import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
@@ -19,10 +22,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     // 预约咨询
     @Override
-    public Appointment bookAppointment(Appointment appointment) {
+    public Result<Appointment> bookAppointment(Appointment appointment) {
         if (appointment.getUserId() == null || appointment.getConsultantId() == null
                 || appointment.getAppointmentDate() == null || appointment.getAppointmentTime() == null) {
-            throw new IllegalArgumentException("预约信息不完整");
+            return Result.error("2", "预约信息不完整");
         }
 
         appointment.setBookingDate(LocalDateTime.now()); // 记录预约创建时间
@@ -32,20 +35,27 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // 存入数据库
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        return savedAppointment;
+        return Result.success(savedAppointment);
     }
-
-
+    
     // 查询用户预约
     @Override
-    public List<Appointment> getUserAppointments(Integer userId) {
-        return appointmentRepository.findByUserId(userId);
+    public Result<List<Appointment>> getUserAppointments(Integer userId, LocalDate startDate, LocalDate endDate, String appointmentStatus) {
+        List<Appointment> appointments = appointmentRepository.findByUserIdAndAppointmentDateBetween(userId, startDate, endDate);
+
+        if (appointments != null && !appointments.isEmpty() && appointmentStatus != null && !appointmentStatus.isEmpty()) {
+            appointments = appointments.stream()
+                    .filter(appointment -> appointmentStatus.equals(appointment.getStatus()))
+                    .collect(Collectors.toList());
+        }
+
+        return Result.success(appointments, "查询成功");
     }
 
     // 查询咨询师预约
     @Override
-    public List<Appointment> getConsultantAppointments(Integer consultantId) {
-        return appointmentRepository.findByConsultantId(consultantId);
+    public Result<List<Appointment>> getConsultantAppointments(Integer consultantId) {
+        return Result.success(appointmentRepository.findByConsultantId(consultantId), "查询成功");
     }
 
     @Override

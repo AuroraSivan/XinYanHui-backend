@@ -22,14 +22,14 @@ public class UserController {
 
         // 参数校验
         if (type == null || account == null || password == null) {
-            return Result.error("400", "请求参数错误！");
+            return Result.error("2", "请求参数错误！");
         }
 
         User user = userService.loginService(type, account, password);
         if (user != null) {
             return Result.success(user, "登录成功！");
         } else {
-            return Result.error("403", "账号或密码错误！");
+            return Result.error("2", "账号或密码错误！");
         }
     }
 
