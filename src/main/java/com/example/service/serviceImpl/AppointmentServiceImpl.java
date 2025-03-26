@@ -31,19 +31,27 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setBookingDate(LocalDateTime.now()); // 记录预约创建时间
         appointment.setCancellationTime(null);
         appointment.setCancellationReason(null);
-        appointment.setStatus(AppointmentStatus.BOOKED);
+        appointment.setStatus(AppointmentStatus.booked);
 
         // 存入数据库
         Appointment savedAppointment = appointmentRepository.save(appointment);
         return Result.success(savedAppointment);
     }
-    
+
     // 查询用户预约
     @Override
-    public Result<List<Appointment>> getUserAppointments(Integer userId, LocalDate startDate, LocalDate endDate, String appointmentStatus) {
-        List<Appointment> appointments = appointmentRepository.findByUserIdAndAppointmentDateBetween(userId, startDate, endDate);
+    public Result<List<Appointment>> getUserAppointments(Integer userId, LocalDate startDate, LocalDate endDate, AppointmentStatus appointmentStatus) {
+        startDate = (startDate != null) ? startDate : LocalDate.MIN;
+        endDate = (endDate != null) ? endDate : LocalDate.now();
 
-        if (appointments != null && !appointments.isEmpty() && appointmentStatus != null && !appointmentStatus.isEmpty()) {
+        // 查询用户的所有预约记录
+        List<Appointment> appointments = appointmentRepository.findByUserIdAndAppointmentDateBetween(userId, startDate, endDate);
+        if (appointments == null || appointments.isEmpty()) {
+            return Result.error("2", "用户预约记录不存在");
+        }
+
+        // 如果 appointmentStatus 不为空，则过滤出对应状态的预约记录
+        if (appointmentStatus != null) {
             appointments = appointments.stream()
                     .filter(appointment -> appointmentStatus.equals(appointment.getStatus()))
                     .collect(Collectors.toList());
@@ -52,39 +60,32 @@ public class AppointmentServiceImpl implements AppointmentService {
         return Result.success(appointments, "查询成功");
     }
 
+
     // 查询咨询师预约
     @Override
-    public Result<List<Appointment>> getConsultantAppointments(Integer consultantId) {
-        return Result.success(appointmentRepository.findByConsultantId(consultantId), "查询成功");
-    }
+    public Result<List<Appointment>> getConsultantAppointments(Integer consultantId, LocalDate startDate, LocalDate endDate, AppointmentStatus appointmentStatus) {
+        startDate = (startDate != null) ? startDate : LocalDate.MIN;
+        endDate = (endDate != null) ? endDate : LocalDate.now();
 
-    @Override
-    public String cancelAppointment(Integer appointmentId, String reason) {
-        return "";
-    }
-
-    // 取消预约
-    @Override
-    public String cancelAppointment(Integer appointmentId, Integer requestUserId, String reason) {
-        Optional<Appointment> optionalAppointment = appointmentRepository.findById(appointmentId);
-        if (optionalAppointment.isPresent()) {
-            Appointment appointment = optionalAppointment.get();
-
-            // 校验取消者是否是预约用户或咨询师
-            if (!requestUserId.equals(appointment.getUserId()) &&
-                    !requestUserId.equals(appointment.getConsultantId())) {
-                return "无权限取消该预约";
-            }
-
-            if (appointment.getStatus() == AppointmentStatus.BOOKED) {
-                appointment.setStatus(AppointmentStatus.CANCELED);
-                appointment.setCancellationTime(LocalDateTime.now());
-                appointment.setCancellationReason(reason);
-                appointmentRepository.save(appointment);
-                return "预约已成功取消";
-            }
-            return "无法取消：预约状态已变更";
+        // 查询用户的所有预约记录
+        List<Appointment> appointments = appointmentRepository.findByConsultantIdAndAppointmentDateBetween(consultantId, startDate, endDate);
+        if (appointments == null || appointments.isEmpty()) {
+            return Result.error("2", "咨询师预约记录不存在");
         }
-        return "预约不存在";
+
+        // 如果 appointmentStatus 不为空，则过滤出对应状态的预约记录
+        if (appointmentStatus != null) {
+            appointments = appointments.stream()
+                    .filter(appointment -> appointmentStatus.equals(appointment.getStatus()))
+                    .collect(Collectors.toList());
+        }
+
+        return Result.success(appointments, "查询成功");
     }
+
+    /*// 取消预约
+    @Override
+    public Result cancelAppointment(Integer appointmentId, String reason) {
+        return "";
+    }*/
 }

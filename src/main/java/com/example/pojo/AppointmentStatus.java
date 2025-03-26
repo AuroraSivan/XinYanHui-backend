@@ -1,9 +1,9 @@
 package com.example.pojo;
 
 public enum AppointmentStatus {
-    BOOKED("booked"),
-    CANCELED("canceled"),
-    COMPLETED("completed");
+    booked("booked"),
+    canceled("canceled"),
+    completed("completed");
 
     private final String value;
 
@@ -22,5 +22,13 @@ public enum AppointmentStatus {
             }
         }
         throw new IllegalArgumentException("Unknown enum value: " + value);
+    }
+    public static AppointmentStatus fromString(String value) {
+        for (AppointmentStatus status : AppointmentStatus.values()) {
+            if (status.value.equalsIgnoreCase(value)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Unknown enum constant " + value);
     }
 }

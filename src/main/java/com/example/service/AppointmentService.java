@@ -1,6 +1,7 @@
 package com.example.service;
 
 import com.example.pojo.Appointment;
+import com.example.pojo.AppointmentStatus;
 import com.example.utils.Result;
 
 import java.time.LocalDate;
@@ -11,12 +12,11 @@ public interface AppointmentService {
     Result<Appointment> bookAppointment(Appointment appointment);
 
     // 查询用户预约
-    Result<List<Appointment>> getUserAppointments(Integer userId, LocalDate startDate, LocalDate endDate, String appointmentStatus);
+    Result<List<Appointment>> getUserAppointments(Integer userId, LocalDate startDate, LocalDate endDate, AppointmentStatus appointmentStatus);
 
-    Result<List<Appointment>> getConsultantAppointments(Integer consultantId);
+    Result<List<Appointment>> getConsultantAppointments(Integer consultantId, LocalDate startDate, LocalDate endDate, AppointmentStatus appointmentStatus);
 
-    String cancelAppointment(Integer appointmentId, String reason);
+    //取消预约
+    //Result cancelAppointment(Integer appointmentId, String reason);
 
-    // 取消预约
-    String cancelAppointment(Integer appointmentId, Integer requestUserId, String reason);
 }
