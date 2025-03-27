@@ -4,8 +4,6 @@ import com.example.pojo.Consultant;
 import com.example.pojo.Supervisor;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 @Mapper
 public interface SupervisorDao{
@@ -14,4 +12,7 @@ public interface SupervisorDao{
 
     @Select("select salt from supervisors where supervisor_id=#{Id}")
     public String getSaltById(Integer Id);     //通过id查询盐值
+
+    @Select("insert into supervisors(supervisor_id,name,professional_info,password_HashwithSalt,salt) values(#{supervisorId},#{name},#{professionalInfo},#{password},#{salt})")
+    public void addSupervisor(Supervisor supervisor);
 }

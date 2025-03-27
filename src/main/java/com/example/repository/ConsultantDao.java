@@ -14,4 +14,7 @@ public interface ConsultantDao  {
 
     @Select("select salt from consultants where consultant_id=#{Id}")
     public String getSaltById(Integer Id);     //通过id查询盐
+
+    @Select("insert into consultants(consultant_id,name,professional_info,password_HashwithSalt,salt) values(#{consultantId},#{name},#{professionalInfo},#{password},#{salt})")
+    public void addConsultant(Consultant consultant);
 }

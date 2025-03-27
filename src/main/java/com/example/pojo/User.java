@@ -12,7 +12,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer user_id;
+    private Integer userId;
 
     private String username;
 
@@ -32,7 +32,7 @@ public class User {
     }
 
     public User(Integer user_id, String username, String password, String salt, String email, String phone, Date register_date) {
-        this.user_id = user_id;
+        this.userId = user_id;
         this.username = username;
         this.password = password;
         this.salt = salt;

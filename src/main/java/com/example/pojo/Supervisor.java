@@ -15,7 +15,7 @@ public class Supervisor {
 
     private String name;
     private String professionalInfo;
-    private String passwordHashwithSalt;
+    private String password;
     private String salt;
 
     public Supervisor() {

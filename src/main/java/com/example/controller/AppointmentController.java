@@ -42,7 +42,7 @@ public class AppointmentController {
         return appointmentServiceImpl.getUserAppointments(userId, startDate, endDate, statusEnum);
     }
 
-    @GetMapping("/internal/consultant/appointment")
+    @GetMapping("/internal/appointments")
     public Result getConsultantAppointments(@RequestParam Integer consultantId,
                                             @RequestParam(required = false) LocalDate startDate,
                                             @RequestParam(required = false) LocalDate endDate,
