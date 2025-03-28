@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.repository.ConsultantDao">
+    <select id="getScheduledConsultants" resultType="com.example.pojo.Consultant">
+        SELECT consultant_id,name,professional_info FROM consultants
+        WHERE consultant_id IN
+        (SELECT consultant_id FROM consultantdailyavailability
+        UNION
+        SELECT consultant_id FROM currentavailability)
+    </select>
+
+    <select id="getScheduledConsultantsByDate" resultType="com.example.pojo.Consultant">
+        SELECT consultant_id,name,professional_info FROM consultants
+        WHERE consultant_id IN
+        (SELECT consultant_id FROM consultantdailyavailability
+        WHERE available_date=#{date})
+    </select>
+
+    <select id="getAvailableConsultants" resultType="com.example.pojo.Consultant">
+        SELECT consultant_id,name,professional_info FROM consultants
+        WHERE consultant_id IN
+        (SELECT consultant_id FROM currentavailability)
+    </select>
+</mapper>

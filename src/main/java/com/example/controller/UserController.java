@@ -1,10 +1,14 @@
 package com.example.controller;
 
+import com.example.pojo.Consultant;
+import com.example.service.ViewService;
 import org.springframework.web.bind.annotation.*;
 import com.example.utils.Result;
 import com.example.pojo.User;
 import com.example.service.UserService;
 import javax.annotation.Resource;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -12,6 +16,9 @@ import java.util.Map;
 public class UserController {
     @Resource
     private UserService userService;
+
+    @Resource
+    private ViewService viewService;
 
     @PostMapping("/login")
     public Result<User> loginController(@RequestBody Map<String, Object> params) {
@@ -41,5 +48,10 @@ public class UserController {
         } else {
             return Result.error("456", "用户名已存在！");
         }
+    }
+
+    @GetMapping("/consultantlist")
+    public Result<List<Consultant>> viewConsultantList(@RequestParam(required = false) LocalDate availableDate){
+        return viewService.viewConsultantsService(availableDate);
     }
 }
