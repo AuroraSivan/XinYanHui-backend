@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.pojo.AvailableStatus;
 import com.example.pojo.Consultant;
 import com.example.service.ViewService;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +9,7 @@ import com.example.pojo.User;
 import com.example.service.UserService;
 import javax.annotation.Resource;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -53,5 +55,10 @@ public class UserController {
     @GetMapping("/consultantlist")
     public Result<List<Consultant>> viewConsultantList(@RequestParam(required = false) LocalDate availableDate){
         return viewService.viewConsultantsService(availableDate);
+    }
+
+    @GetMapping("/consultant")
+    public Result<Map<LocalDateTime, AvailableStatus>> getAvailableTime(@RequestParam Integer consultantID){
+        return viewService.getAvailableTimeService(consultantID);
     }
 }

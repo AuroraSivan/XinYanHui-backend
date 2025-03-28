@@ -1,10 +1,10 @@
 package com.example.repository;
 
-import com.example.pojo.Admin;
+import com.example.pojo.AfternoonAvailableRecord;
 import com.example.pojo.Consultant;
+import com.example.pojo.MorningAvailableRecord;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,4 +27,12 @@ public interface ConsultantDao  {
 
     //Get consultant list who are available now
     List<Consultant> getAvailableConsultants();
+
+    List<MorningAvailableRecord> getMorningAvailableRecords(Integer id);
+
+    List<AfternoonAvailableRecord> getAfternoonAvailableRecords(Integer consultantId);
+
+    //get available status now
+    @Select("select is_available from currentAvailability where consultant_id=#{id}")
+    Short getAvailableStatus(Integer id);
 }
