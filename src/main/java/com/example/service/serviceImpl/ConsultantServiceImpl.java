@@ -29,7 +29,7 @@ public class ConsultantServiceImpl implements ConsultantService {
             return Result.success(consultant);
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return Result.error("未知异常");
         }
 
     }

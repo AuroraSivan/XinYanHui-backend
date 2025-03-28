@@ -45,7 +45,7 @@ public class AdminServiceImpl implements AdminService {
             }
         } catch (Exception e) {
             log.error("Admin login service exception:", e);
-            return null;
+            return Result.error("未知异常");
         }
     }
 
@@ -58,7 +58,7 @@ public class AdminServiceImpl implements AdminService {
             String hashPassword = PasswordHashWithSalt.hashPassword(password, salt);
             consultant.setPassword(hashPassword);
         }catch(Exception e){
-            return null;
+            return Result.error("未知异常");
         }
         consultantDao.addConsultant(consultant);
         return Result.success(consultant);
@@ -72,7 +72,7 @@ public class AdminServiceImpl implements AdminService {
             String hashPassword = PasswordHashWithSalt.hashPassword(supervisor.getPassword(), salt);
             supervisor.setPassword(hashPassword);
         }catch(Exception e){
-            return null;
+            return Result.error("未知异常");
         }
         supervisorDao.addSupervisor(supervisor);
         return Result.success(supervisor);
