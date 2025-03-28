@@ -331,27 +331,5 @@ CREATE TABLE `SupervisorSchedules` (
 -- Final view structure for view `ConsultantsAvailable`
 --
 
-/*!50001 DROP VIEW IF EXISTS `ConsultantsAvailable`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `ConsultantsAvailable` (`consultant_id`,`session_id`,`appointment_id`,`is_available`) AS select distinct `c`.`consultant_id` AS `consultant_id`,`css`.`session_id` AS `session_id`,`a`.`appointment_id` AS `appointment_id`,(case when ((`cs`.`available_date` = curdate()) and (cast(`css`.`start_time` as date) = curdate())) then 1 else 0 end) AS `is_available` from (((`Consultants` `c` join `ConsultantSchedules` `cs` on((`c`.`consultant_id` = `cs`.`consultant_id`))) left join `ConsultationSessions` `css` on((`c`.`consultant_id` = `css`.`consultant_id`))) left join `Appointments` `a` on((`css`.`appointment_id` = `a`.`appointment_id`))) where ((`cs`.`available_date` = curdate()) and (hour(now()) > `cs`.`start_time`) and (hour(now()) < `cs`.`end_time`) and (cast(`css`.`start_time` as date) = curdate())) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-03-20 11:04:00
