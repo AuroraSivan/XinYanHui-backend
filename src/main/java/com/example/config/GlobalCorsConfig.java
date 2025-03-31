@@ -36,7 +36,7 @@ public class GlobalCorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // 允许所有来源（前端请求）
+        configuration.addAllowedOrigin("http://localhost:8081"); // 允许前端请求来源
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 允许的请求方法
         configuration.setAllowedHeaders(List.of("*")); // 允许的请求头
         configuration.setAllowCredentials(true); // 允许携带 cookie 进行跨域请求
