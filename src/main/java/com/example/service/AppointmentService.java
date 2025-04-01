@@ -17,6 +17,6 @@ public interface AppointmentService {
     Result<List<Appointment>> getConsultantAppointments(Integer consultantId, LocalDate startDate, LocalDate endDate, AppointmentStatus appointmentStatus);
 
     //取消预约
-    //Result cancelAppointment(Integer appointmentId, String reason);
+    Result cancelAppointment(Integer appointmentId, String reason);
 
 }

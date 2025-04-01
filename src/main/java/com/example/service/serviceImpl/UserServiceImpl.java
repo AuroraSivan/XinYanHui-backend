@@ -62,6 +62,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User registerService (User user){
+        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+            // 用户名为空，返回null或抛出自定义异常
+            return null;
+        }
         //当新用户的用户名已存在时
         if(userDao.findByUsername(user.getUsername())!=null){
             // 无法注册

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping
@@ -61,9 +62,17 @@ public class AppointmentController {
         return appointmentServiceImpl.getConsultantAppointments(consultantId, startDate, endDate, statusEnum);
     }
 
-    /*// 取消预约
-    @PostMapping("/cancel/{appointmentId}")
-    public String cancelAppointment(@PathVariable Integer appointmentId, @RequestParam String reason) {
-        return appointmentServiceImpl.cancelAppointment(appointmentId, reason);
-    }*/
+    // 取消预约
+    @PostMapping("/user/cancel")
+    public Result cancelAppointment(@RequestBody Map<String, Object> cancelRequest) {
+        // 从请求体中获取 appointmentId 和 cancellationReason
+        Integer appointmentId = (Integer) cancelRequest.get("appointmentId");
+        String cancellationReason = (String) cancelRequest.get("cancellationReason");
+
+        if (appointmentId == null) {
+            return Result.error("3", "appointmentId is required");
+        }
+
+        return appointmentServiceImpl.cancelAppointment(appointmentId, cancellationReason);
+    }
 }
