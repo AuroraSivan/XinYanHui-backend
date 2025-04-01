@@ -4,29 +4,29 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.repository.ConsultantDao">
     <select id="getScheduledConsultants" resultType="com.example.pojo.Consultant">
-        SELECT consultant_id,name,professional_info FROM consultants
+        SELECT consultant_id,name,professional_info FROM Consultants
         WHERE consultant_id IN
-        (SELECT consultant_id FROM consultantdailyavailability
+        (SELECT consultant_id FROM ConsultantDailyAvailability
         UNION
-        SELECT consultant_id FROM currentavailability)
+        SELECT consultant_id FROM CurrentAvailability)
     </select>
 
     <select id="getScheduledConsultantsByDate" resultType="com.example.pojo.Consultant">
-        SELECT consultant_id,name,professional_info FROM consultants
+        SELECT consultant_id,name,professional_info FROM Consultants
         WHERE consultant_id IN
-        (SELECT consultant_id FROM consultantdailyavailability
+        (SELECT consultant_id FROM ConsultantDailyAvailability
         WHERE available_date=#{date})
     </select>
 
     <select id="getAvailableConsultants" resultType="com.example.pojo.Consultant">
-        SELECT consultant_id,name,professional_info FROM consultants
+        SELECT consultant_id,name,professional_info FROM Consultants
         WHERE consultant_id IN
-        (SELECT consultant_id FROM currentavailability)
+        (SELECT consultant_id FROM CurrentAvailability)
     </select>
 
     <select id="getMorningAvailableRecords" resultType="com.example.pojo.MorningAvailableRecord">
         SELECT cs.available_date,hour_8_available,hour_9_available,hour_10_available,hour_11_available,hour_12_available
-        FROM consultantschedules cs JOIN consultantdailyavailability cd
+        FROM ConsultantSchedules cs JOIN ConsultantDailyAvailability cd
         ON cs.consultant_id=cd.consultant_id
         AND cs.available_date=cd.available_date
         WHERE cs.consultant_id=#{id} AND start_time=8
@@ -34,7 +34,7 @@
 
     <select id="getAfternoonAvailableRecords" resultType="com.example.pojo.AfternoonAvailableRecord">
         SELECT cs.available_date,hour_13_available,hour_14_available,hour_15_available,hour_16_available,hour_17_available
-        FROM consultantSchedules cs JOIN consultantDailyAvailability cd
+        FROM ConsultantSchedules cs JOIN ConsultantDailyAvailability cd
         ON cs.consultant_id=cd.consultant_id
         AND cs.available_date=cd.available_date
         WHERE cs.consultant_id=#{id} AND start_time=13
