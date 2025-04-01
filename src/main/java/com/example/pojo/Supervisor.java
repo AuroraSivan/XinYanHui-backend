@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Entity
-@Table(name = "supervisors")
+@Table(name = "Supervisors")
 @Data
 @AllArgsConstructor
 public class Supervisor {

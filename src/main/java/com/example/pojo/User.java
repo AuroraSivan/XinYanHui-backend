@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.util.Date;
 
-@Table(name = "users")
+@Table(name = "Users")
 @Entity
 @Data
 public class User {
