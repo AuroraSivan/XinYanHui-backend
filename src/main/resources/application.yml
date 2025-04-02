@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: XinYanHui
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://118.178.178.75:3306/xinyanhui?serverTimezone=UTC&useSSL=false
+    username: root
+    password: Xinyanhui2025
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+

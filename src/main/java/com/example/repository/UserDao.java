@@ -4,8 +4,6 @@ import com.example.pojo.User;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Mapper
@@ -13,13 +11,13 @@ public interface UserDao {
     @Select("SELECT * FROM Users WHERE username = #{username}")
     User findByUsername(String username); // 通过用户名查找用户
 
-    @Select("SELECT * FROM Users WHERE username = #{username} AND password_HashwithSalt = #{password_HashwithSalt}")
+    @Select("SELECT * FROM Users WHERE username = #{username} AND password_HashwithSalt = #{password}")
     User findByUsernameAndPassword(String username, String password); // 通过用户名和密码查找用户
 
-    @Select("SELECT * FROM Users WHERE phone = #{phone} AND password_HashwithSalt = #{password_HashwithSalt}")
+    @Select("SELECT * FROM Users WHERE phone = #{phone} AND password_HashwithSalt = #{password}")
     User findByPhoneAndPassword(String phone, String password); // 通过电话和密码查找用户
 
-    @Select("SELECT * FROM Users WHERE email = #{email} AND password_HashwithSalt = #{password_HashwithSalt}")
+    @Select("SELECT * FROM Users WHERE email = #{email} AND password_HashwithSalt = #{password}")
     User findByEmailAndPassword(String email, String password); // 通过邮箱和密码查找用户
 
     @Select("SELECT * FROM Users WHERE phone = #{phone}")
@@ -28,6 +26,6 @@ public interface UserDao {
     @Select("SELECT * FROM Users WHERE email = #{email}")
     User findByEmail(String email); // 通过邮箱查找用户
 
-    @Insert("INSERT INTO Users (username, password_HashwithSalt, salt, email, phone, register_date) VALUES (#{username}, #{password_HashwithSalt}, #{salt}, #{email}, #{phone}, NOW())")
+    @Insert("INSERT INTO Users (username, password_HashwithSalt, salt, email, phone, register_date) VALUES (#{username}, #{password}, #{salt}, #{email}, #{phone}, NOW())")
     void save(User user);
 }
