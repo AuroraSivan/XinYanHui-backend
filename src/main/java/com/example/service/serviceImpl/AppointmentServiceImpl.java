@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,18 +24,43 @@ public class AppointmentServiceImpl implements AppointmentService {
     // 预约咨询
     @Override
     public Result<Appointment> bookAppointment(Appointment appointment) {
+        // 检查预约信息是否完整
         if (appointment.getUserId() == null || appointment.getConsultantId() == null
                 || appointment.getAppointmentDate() == null || appointment.getAppointmentTime() == null) {
-            return Result.error("2", "预约信息不完整");
+            return Result.error("预约信息不完整");
         }
 
-        appointment.setBookingDate(LocalDateTime.now()); // 记录预约创建时间
-        appointment.setCancellationTime(null);
-        appointment.setCancellationReason(null);
+        // 检查同一时间段内该咨询师的预约数量
+        LocalDate appointmentDate = appointment.getAppointmentDate();
+        LocalTime appointmentTime = appointment.getAppointmentTime();
+        Long appointmentCount = appointmentRepository.countByConsultantIdAndAppointmentDateAndAppointmentTime(
+                appointment.getConsultantId(), appointmentDate, appointmentTime);
+
+        if (appointmentCount >= 5) {
+            return Result.error("同一时间段内该咨询师的预约已满，请选择其他时间");
+        }
+
+        // 检查用户是否已在同一时间段预约了其他咨询师
+        Long userAppointmentCount = appointmentRepository.countByUserIdAndAppointmentDateAndAppointmentTime(
+                appointment.getUserId(), appointmentDate, appointmentTime);
+
+        if (userAppointmentCount > 0) {
+            return Result.error("您已在该时间段预约了其他咨询师，请选择其他时间");
+        }
+
+        // 设置预约状态为 "已预约"
         appointment.setStatus(AppointmentStatus.booked);
 
-        // 存入数据库
+        // 设置预约创建时间
+        appointment.setBookingDate(LocalDateTime.now());
+
+        // 取消时间和取消原因默认为null
+        appointment.setCancellationTime(null);
+        appointment.setCancellationReason(null);
+
+        // 保存预约信息
         Appointment savedAppointment = appointmentRepository.save(appointment);
+
         return Result.success(savedAppointment);
     }
 
