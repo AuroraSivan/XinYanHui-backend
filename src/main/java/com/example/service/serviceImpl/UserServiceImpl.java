@@ -81,9 +81,8 @@ public class UserServiceImpl implements UserService {
                 String hashedPassword = PasswordHashWithSalt.hashPassword(user.getPassword(), user.getSalt());
                 user.setPassword(hashedPassword);
                 // 保存用户并返回创建好的用户对象(带uid)
-                User newUser = userDao.save(user);
-                newUser.setPassword("");
-                return newUser;
+                userDao.save(user);
+                return user;
             } catch (Exception e) {
                 return null;
             }

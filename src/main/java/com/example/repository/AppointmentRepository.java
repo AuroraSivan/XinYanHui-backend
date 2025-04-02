@@ -2,6 +2,9 @@ package com.example.repository;
 
 import com.example.pojo.Appointment;
 import com.example.pojo.AppointmentStatus;
+import com.example.pojo.User;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,8 +15,8 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
-public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
+@Mapper
+public interface AppointmentRepository {
     @Select("SELECT * FROM Appointments WHERE user_id = #{userId} AND appointment_date BETWEEN #{startDate} AND #{endDate}")
     List<Appointment> findByUserIdAndAppointmentDateBetween(Integer userId, LocalDate startDate, LocalDate endDate);
 
@@ -28,4 +31,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 
     @Select("SELECT COUNT(*) FROM Appointments WHERE user_id = #{userId} AND appointment_date = #{appointmentDate} AND appointment_time = #{appointmentTime}")
     Long countByUserIdAndAppointmentDateAndAppointmentTime(Integer userId, LocalDate appointmentDate, LocalTime appointmentTime);
+
+    @Insert("INSERT INTO Appointments (user_id, consultant_id, appointment_date, appointment_time, booking_date, status, cancellation_time, cancellation_reason) " +
+            "VALUES (#{userId}, #{consultantId}, #{appointmentDate}, #{appointmentTime}, #{bookingDate}, #{status}, #{cancellationTime}, #{cancellationReason})")
+    void save(Appointment appointment);
 }

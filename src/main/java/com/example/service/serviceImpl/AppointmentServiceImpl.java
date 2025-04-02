@@ -59,9 +59,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setCancellationReason(null);
 
         // 保存预约信息
-        Appointment savedAppointment = appointmentRepository.save(appointment);
+        appointmentRepository.save(appointment);
 
-        return Result.success(savedAppointment);
+        return Result.success(appointment);
     }
 
     // 查询用户预约
