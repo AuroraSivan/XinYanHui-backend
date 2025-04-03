@@ -59,6 +59,9 @@ public class UserController {
 
     @GetMapping("/consultant")
     public Result<Map<LocalDateTime, AvailableStatus>> getAvailableTime(@RequestParam Integer consultantID){
+        if (consultantID == null) {
+            return Result.error("请求参数错误！");
+        }
         return viewService.getAvailableTimeService(consultantID);
     }
 }

@@ -25,6 +25,9 @@ public class AdminController {
     public Result<Consultant> addConsultant(@RequestParam(name="username") String name,
                                 @RequestParam(required = false) String professionalInfo,
                                 @RequestParam String password) {
+        if(name==null || password==null || name.isEmpty() || password.isEmpty()){
+            return Result.error("参数错误");
+        }
         Consultant consultant = new Consultant();
         consultant.setName(name);
         consultant.setProfessionalInfo(professionalInfo);
@@ -36,6 +39,9 @@ public class AdminController {
     public Result<Supervisor> addSupervisor(@RequestParam(name="username") String name,
                                             @RequestParam(required = false) String professionalInfo,
                                             @RequestParam String password) {
+        if(name==null || password==null || name.isEmpty() || password.isEmpty()){
+            return Result.error("参数错误");
+        }
         Supervisor supervisor = new Supervisor();
         supervisor.setName(name);
         supervisor.setProfessionalInfo(professionalInfo);

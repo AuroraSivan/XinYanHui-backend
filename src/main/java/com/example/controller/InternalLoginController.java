@@ -30,16 +30,25 @@ public class InternalLoginController {
 
     @PostMapping("/consultant")
     public Result<Consultant> loginAsConsultant(@RequestParam Integer id, @RequestParam String password) {
+        if(id==null || password==null || password.length()==0){
+            return Result.error("参数错误");
+        }
         return consultantService.loginService(id, password);
     }
 
     @PostMapping("/supervisor")
     public Result<Supervisor> loginAsSupervisor(@RequestParam Integer id, @RequestParam String password) {
+        if(id==null || password==null || password.length()==0){
+            return Result.error("参数错误");
+        }
         return supervisorService.loginService(id, password);
     }
 
     @PostMapping("/admin")
     public Result<Admin> loginAsAdmin(@RequestParam Integer id, @RequestParam String password) {
+        if(id==null || password==null || password.length()==0){
+            return Result.error("参数错误");
+        }
         return adminService.loginService(id, password);
     }
 }
