@@ -120,22 +120,49 @@ CREATE TABLE `SupervisorConsultations` (
 -- 前置条件：预约咨询开始前一小时，创建会话（`ConsultationSessions`的记录）
 -- 每次查询视图时会基于当前时间和最新基础表重新计算，无需额外设置更新
 CREATE VIEW CurrentAvailability AS
-SELECT 
-    consultant_id,
-    SUM(CASE WHEN session_status = 'active' THEN 1 ELSE 0 END) AS active_sessions,
-    SUM(CASE WHEN session_status = 'ready' THEN 1 ELSE 0 END) AS ready_sessions,
-    CASE 
-        WHEN 
-            SUM(CASE WHEN session_status = 'active' THEN 1 ELSE 0 END) < 5 
-            AND (
-                TIMESTAMPDIFF(MINUTE, NOW(), DATE_ADD(NOW(), INTERVAL 1 HOUR) - INTERVAL MINUTE(NOW()) MINUTE) >= 30 
-                OR SUM(CASE WHEN session_status = 'ready' THEN 1 ELSE 0 END) < 5
-            ) 
-        THEN 1 
-        ELSE 0 
-    END AS is_available
-FROM ConsultationSessions
-GROUP BY consultant_id;
+SELECT
+	`cs`.`consultant_id` AS `consultant_id`,
+	COALESCE ( sum(( CASE WHEN ( `css`.`session_status` = 'active' ) THEN 1 ELSE 0 END )), 0 ) AS `active_sessions`,
+	COALESCE ( sum(( CASE WHEN ( `css`.`session_status` = 'ready' ) THEN 1 ELSE 0 END )), 0 ) AS `ready_sessions`,(
+	CASE
+			
+			WHEN ((
+					COALESCE ( sum(( CASE WHEN ( `css`.`session_status` = 'active' ) THEN 1 ELSE 0 END )), 0 ) < `cs`.`slot_capacity` 
+					) 
+				AND ((
+						timestampdiff(
+							MINUTE,
+							now(),((
+									now() + INTERVAL 1 HOUR 
+									) - INTERVAL MINUTE (
+									now()) MINUTE 
+							)) >= 30 
+						) 
+				OR ( COALESCE ( sum(( CASE WHEN ( `css`.`session_status` = 'ready' ) THEN 1 ELSE 0 END )), 0 ) < `cs`.`slot_capacity` ))) THEN
+				1 ELSE 0 
+			END 
+			) AS `is_available` 
+		FROM
+			(
+				`consultantschedules` `cs`
+				LEFT JOIN `consultationsessions` `css` ON (((
+							`cs`.`consultant_id` = `css`.`consultant_id` 
+							) 
+						AND ( cast( `css`.`start_time` AS DATE ) = `cs`.`available_date` ) 
+						AND (
+							HOUR ( `css`.`start_time` ) BETWEEN `cs`.`start_time` 
+						AND ( `cs`.`end_time` - 1 ))))) 
+		WHERE
+			((
+					`cs`.`available_date` = curdate()) 
+				AND (
+					`cs`.`start_time` <= HOUR (
+					now())) 
+				AND ( HOUR ( now()) < `cs`.`end_time` ) 
+			AND ( `cs`.`status` = 'normal' )) 
+		GROUP BY
+			`cs`.`consultant_id`,
+			`cs`.`slot_capacity`;
 
 -- 查询接下来六天所有咨询师在每个时段是否有空的视图
 CREATE VIEW ConsultantDailyAvailability AS
