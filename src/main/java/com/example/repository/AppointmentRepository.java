@@ -32,6 +32,9 @@ public interface AppointmentRepository {
     @Select("SELECT COUNT(*) FROM Appointments WHERE user_id = #{userId} AND appointment_date = #{appointmentDate} AND appointment_time = #{appointmentTime}")
     Long countByUserIdAndAppointmentDateAndAppointmentTime(Integer userId, LocalDate appointmentDate, LocalTime appointmentTime);
 
+    @Select("SELECT name FROM consultants WHERE consultant_id = #{consultantId}")
+    String findConsultantNameById(Integer consultantId);
+
     @Insert("INSERT INTO Appointments (user_id, consultant_id, appointment_date, appointment_time, booking_date, status, cancellation_time, cancellation_reason) " +
             "VALUES (#{userId}, #{consultantId}, #{appointmentDate}, #{appointmentTime}, #{bookingDate}, #{status}, #{cancellationTime}, #{cancellationReason})")
     void save(Appointment appointment);

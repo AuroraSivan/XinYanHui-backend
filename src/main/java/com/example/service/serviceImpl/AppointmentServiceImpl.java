@@ -83,9 +83,14 @@ public class AppointmentServiceImpl implements AppointmentService {
                     .collect(Collectors.toList());
         }
 
+        // 获取每个预约的咨询师姓名
+        for (Appointment appointment : appointments) {
+            String consultantName = appointmentRepository.findConsultantNameById(appointment.getConsultantId());
+            appointment.setConsultantName(consultantName);
+        }
+
         return Result.success(appointments, "查询成功");
     }
-
 
     // 查询咨询师预约
     @Override

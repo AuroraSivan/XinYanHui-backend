@@ -40,6 +40,8 @@ public class Appointment {
     @Column(name = "cancellation_reason", nullable = true)
     private String cancellationReason;
 
+    private String consultantName;
+
     public Appointment() {
     }
 
@@ -50,6 +52,4 @@ public class Appointment {
         this.appointmentTime = appointmentTime;
         this.status = status;
     }
-
-
 }
