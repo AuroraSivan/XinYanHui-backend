@@ -29,7 +29,7 @@ public interface AppointmentRepository {
     @Select("SELECT COUNT(*) FROM Appointments WHERE user_id = #{userId} AND appointment_date = #{appointmentDate} AND appointment_time = #{appointmentTime}")
     Long countByUserIdAndAppointmentDateAndAppointmentTime(Integer userId, LocalDate appointmentDate, LocalTime appointmentTime);
 
-    @Select("SELECT name FROM consultants WHERE consultant_id = #{consultantId}")
+    @Select("SELECT name FROM Consultants WHERE consultant_id = #{consultantId}")
     String findConsultantNameById(Integer consultantId);
 
     @Update("UPDATE appointments SET status = 'canceled', cancellation_reason = #{reason},cancellation_time = NOW() WHERE appointment_id = #{appointmentId} AND status = 'booked'")

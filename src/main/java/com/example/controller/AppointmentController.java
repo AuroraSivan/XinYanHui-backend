@@ -58,7 +58,6 @@ public class AppointmentController {
         } catch (IllegalArgumentException e) {
             return Result.error("3", "无效的预约状态: " + appointmentStatus);
         }
-
         return appointmentServiceImpl.getConsultantAppointments(consultantId, startDate, endDate, statusEnum);
     }
 
