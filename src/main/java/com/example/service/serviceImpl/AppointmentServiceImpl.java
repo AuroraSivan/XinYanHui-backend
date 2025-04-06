@@ -117,22 +117,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     // 取消预约
     @Override
     public Result cancelAppointment(Integer appointmentId, String reason) {
-        // 查询该预约是否存在且状态为 BOOKED
-        Optional<Appointment> optionalAppointment = appointmentRepository.findByAppointmentIdAndStatus(appointmentId, AppointmentStatus.booked);
+        // 直接尝试更新状态
+        int rowsUpdated = appointmentRepository.cancelAppointment(appointmentId, reason);
 
-        if (optionalAppointment.isEmpty()) {
+        // 如果更新失败（没有符合条件的记录）
+        if (rowsUpdated == 0) {
             return Result.error("预约不存在或状态无法取消");
         }
 
-        // 获取预约对象并更新状态
-        Appointment appointment = optionalAppointment.get();
-        appointment.setStatus(AppointmentStatus.canceled);
-        appointment.setCancellationReason(reason);
-        appointment.setCancellationTime(LocalDateTime.now());
-
-        // 保存到数据库
-        appointmentRepository.save(appointment);
-
+        // 更新成功
         return Result.success("预约已成功取消");
     }
 }

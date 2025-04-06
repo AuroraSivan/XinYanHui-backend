@@ -3,10 +3,7 @@ package com.example.repository;
 import com.example.pojo.Appointment;
 import com.example.pojo.AppointmentStatus;
 import com.example.pojo.User;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -34,6 +31,9 @@ public interface AppointmentRepository {
 
     @Select("SELECT name FROM consultants WHERE consultant_id = #{consultantId}")
     String findConsultantNameById(Integer consultantId);
+
+    @Update("UPDATE appointments SET status = 'canceled', cancellation_reason = #{reason},cancellation_time = NOW() WHERE appointment_id = #{appointmentId} AND status = 'booked'")
+    int cancelAppointment(@Param("appointmentId") Integer appointmentId, @Param("reason") String reason);
 
     @Insert("INSERT INTO Appointments (user_id, consultant_id, appointment_date, appointment_time, booking_date, status, cancellation_time, cancellation_reason) " +
             "VALUES (#{userId}, #{consultantId}, #{appointmentDate}, #{appointmentTime}, #{bookingDate}, #{status}, #{cancellationTime}, #{cancellationReason})")
