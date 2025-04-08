@@ -3,10 +3,14 @@ package com.example.service.serviceImpl;
 import com.example.pojo.Consultant;
 import com.example.repository.ConsultantDao;
 import com.example.service.ConsultantService;
+import com.example.utils.JwtUtil;
 import com.example.utils.PasswordHashWithSalt;
 import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Service
@@ -26,6 +30,10 @@ public class ConsultantServiceImpl implements ConsultantService {
             if(consultant==null){
                 return Result.error("2","密码错误");
             }
+            Map<String,Object> claims = new HashMap<>();
+            claims.put("type","consultant");
+            claims.put("id",consultant.getConsultantId());
+            consultant.setToken(JwtUtil.generateJwt(claims));
             return Result.success(consultant);
         } catch (Exception e) {
             e.printStackTrace();

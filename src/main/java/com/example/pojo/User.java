@@ -23,6 +23,8 @@ public class User {
     private String phone;
     private Date register_date;
 
+    private String token;
+
     public User() {
     }
 

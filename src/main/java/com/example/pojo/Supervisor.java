@@ -17,6 +17,7 @@ public class Supervisor {
     private String professionalInfo;
     private String password;
     private String salt;
+    private String token;
 
     public Supervisor() {
     }
