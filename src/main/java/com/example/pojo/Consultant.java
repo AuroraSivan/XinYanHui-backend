@@ -17,6 +17,7 @@ public class Consultant {
     private String professionalInfo;
     private String password;
     private String salt;
+    private String token;
 
     public Consultant() {
         // Default constructor

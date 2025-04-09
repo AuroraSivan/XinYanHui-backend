@@ -3,10 +3,14 @@ package com.example.service.serviceImpl;
 import com.example.pojo.Supervisor;
 import com.example.repository.SupervisorDao;
 import com.example.service.SupervisorService;
+import com.example.utils.JwtUtil;
 import com.example.utils.PasswordHashWithSalt;
 import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class SupervisorServiceImpl implements SupervisorService {
@@ -26,6 +30,10 @@ public class SupervisorServiceImpl implements SupervisorService {
                 return Result.error("2","密码错误");
             }
             else{
+                Map<String,Object> claims = new HashMap<>();
+                claims.put("type","consultant");
+                claims.put("id",supervisor.getSupervisorId());
+                supervisor.setToken(JwtUtil.generateJwt(claims));
                 return Result.success(supervisor);
             }
         } catch (Exception e) {

@@ -3,6 +3,7 @@ package com.example.controller;
 import com.example.pojo.AvailableStatus;
 import com.example.pojo.Consultant;
 import com.example.service.ViewService;
+import com.example.utils.JwtUtil;
 import org.springframework.web.bind.annotation.*;
 import com.example.utils.Result;
 import com.example.pojo.User;
@@ -10,6 +11,7 @@ import com.example.service.UserService;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +38,10 @@ public class UserController {
 
         User user = userService.loginService(type, account, password);
         if (user != null) {
+            Map<String,Object> claims = new HashMap<>();
+            claims.put("type","user");
+            claims.put("id",user.getUserId());
+            user.setToken(JwtUtil.generateJwt(claims));
             return Result.success(user, "登录成功！");
         } else {
             return Result.error("2", "账号或密码错误！");

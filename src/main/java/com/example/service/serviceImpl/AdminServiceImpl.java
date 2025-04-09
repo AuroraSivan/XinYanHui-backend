@@ -8,11 +8,15 @@ import com.example.repository.ConsultantDao;
 import com.example.repository.SupervisorDao;
 import com.example.service.AdminService;
 import com.example.utils.IdGenerator;
+import com.example.utils.JwtUtil;
 import com.example.utils.PasswordHashWithSalt;
 import com.example.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -41,6 +45,10 @@ public class AdminServiceImpl implements AdminService {
                 return Result.error("2","密码错误");
             }
             else{
+                Map<String,Object> claims = new HashMap<>();
+                claims.put("type","admin");
+                claims.put("id",admin.getAdminId());
+                admin.setToken(JwtUtil.generateJwt(claims));
                 return Result.success(admin);
             }
         } catch (Exception e) {
