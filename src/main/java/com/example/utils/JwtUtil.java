@@ -23,7 +23,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public Map<String,Object> parseJwt(String jwt){
+    public static Map<String,Object> parseJwt(String jwt){
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
