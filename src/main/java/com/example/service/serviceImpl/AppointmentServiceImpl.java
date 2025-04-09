@@ -68,7 +68,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Result<List<Appointment>> getUserAppointments(Integer userId, LocalDate startDate, LocalDate endDate, AppointmentStatus appointmentStatus) {
         startDate = (startDate != null) ? startDate : LocalDate.MIN;
-        endDate = (endDate != null) ? endDate : LocalDate.now();
+        endDate = (endDate != null) ? endDate : LocalDate.now().plusWeeks(1);
 
         // 查询用户的所有预约记录
         List<Appointment> appointments = appointmentRepository.findByUserIdAndAppointmentDateBetween(userId, startDate, endDate);
@@ -96,7 +96,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Result<List<Appointment>> getConsultantAppointments(Integer consultantId, LocalDate startDate, LocalDate endDate, AppointmentStatus appointmentStatus) {
         startDate = (startDate != null) ? startDate : LocalDate.MIN;
-        endDate = (endDate != null) ? endDate : LocalDate.now().plusDays(6);
         endDate = (endDate != null) ? endDate : LocalDate.now().plusWeeks(1);
 
         // 查询用户的所有预约记录
