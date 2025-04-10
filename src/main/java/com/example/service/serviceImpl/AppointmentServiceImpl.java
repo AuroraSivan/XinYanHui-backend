@@ -6,13 +6,13 @@ import com.example.repository.AppointmentRepository;
 import com.example.service.AppointmentService;
 import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,7 +22,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     private AppointmentRepository appointmentRepository;
 
     // 预约咨询
-    @Override
     public Result<Appointment> bookAppointment(Appointment appointment) {
         // 检查预约信息是否完整
         if (appointment.getUserId() == null || appointment.getConsultantId() == null

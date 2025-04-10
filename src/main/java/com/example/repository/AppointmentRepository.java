@@ -38,4 +38,7 @@ public interface AppointmentRepository {
     @Insert("INSERT INTO Appointments (user_id, consultant_id, appointment_date, appointment_time, booking_date, status, cancellation_time, cancellation_reason) " +
             "VALUES (#{userId}, #{consultantId}, #{appointmentDate}, #{appointmentTime}, #{bookingDate}, #{status}, #{cancellationTime}, #{cancellationReason})")
     void save(Appointment appointment);
+
+    @Select("SELECT * FROM Appointments WHERE appointment_date > #{localDate} AND appointment_time > #{localTime}")
+    List<Appointment> findUpcomingAppointments(LocalDate localDate, LocalTime localTime);
 }

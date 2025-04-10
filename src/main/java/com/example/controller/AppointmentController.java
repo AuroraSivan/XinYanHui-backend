@@ -2,12 +2,15 @@ package com.example.controller;
 
 import com.example.pojo.Appointment;
 import com.example.pojo.AppointmentStatus;
+import com.example.repository.AppointmentRepository;
 import com.example.service.serviceImpl.AppointmentServiceImpl;
 import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 

@@ -10,7 +10,6 @@ import com.example.websocket.ChatHandler;
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
-
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(new ChatHandler(), "/chat") // 处理WebSocket连接的端点

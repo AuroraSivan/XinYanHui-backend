@@ -4,9 +4,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/xinyanhui?serverTimezone=UTC&useSSL=false
+    url: jdbc:mysql://118.178.178.75/xinyanhui?serverTimezone=UTC&useSSL=false
     username: root
-    password: 123456
+    password: Xinyanhui2025
 
 mybatis:
   configuration:
