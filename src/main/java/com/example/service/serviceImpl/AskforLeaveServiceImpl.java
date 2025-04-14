@@ -32,6 +32,19 @@ public class AskforLeaveServiceImpl implements AskforLeaveService {
         }
     }
 
+    @Override
+    public Result approveLeave(Integer scheduleId, Boolean isApproved) {
+        if(isApproved){
+            consultantSchedulesRepository.updateLeaveApproved(scheduleId);
+            return Result.success("请假审批成功");
+        }
+        // 更新 ConsultantSchedules 表格中对应 scheduleId 的 status 为 leave
+        else{
+            consultantSchedulesRepository.updateLeaveRejected(scheduleId);
+            return Result.success("2","请假审批失败");
+        }
+    }
+
     // 将时间字符串（如 12:00:00）转换为小时（如 12）
     private int convertTimeToHour(String time) {
         // 解析时间并获取小时部分

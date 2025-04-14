@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/internal/consultant")
+@RequestMapping("/internal")
 public class LeaveRequestController {
 
     @Autowired
     private AskforLeaveService askforLeaveService;
 
-    @PostMapping("/leave")
+    @PostMapping("/consultant/leave")
     public Result askForLeave(@RequestBody Map<String, Object> requestBody) {
         // 从请求体中提取参数
         Integer consultantId = ((Number) requestBody.get("consultantId")).intValue(); // 转换为Integer
@@ -24,5 +24,12 @@ public class LeaveRequestController {
 
         // 调用服务层方法
         return askforLeaveService.askforLeave(consultantId, date, time, cancellationReason);
+    }
+
+    @PostMapping("/admin/approveLeave")
+    public Result approveLeave(@RequestParam Integer scheduleId,@RequestParam Boolean isApproved) {
+
+        // 调用服务层方法
+        return askforLeaveService.approveLeave(scheduleId,isApproved);
     }
 }
