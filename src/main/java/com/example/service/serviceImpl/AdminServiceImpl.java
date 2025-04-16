@@ -2,20 +2,22 @@ package com.example.service.serviceImpl;
 
 import com.example.pojo.Admin;
 import com.example.pojo.Consultant;
+import com.example.pojo.ConsultantSchedule;
 import com.example.pojo.Supervisor;
 import com.example.repository.AdminDao;
 import com.example.repository.ConsultantDao;
+import com.example.repository.ConsultantSchedulesRepository;
 import com.example.repository.SupervisorDao;
 import com.example.service.AdminService;
-import com.example.utils.IdGenerator;
-import com.example.utils.JwtUtil;
-import com.example.utils.PasswordHashWithSalt;
-import com.example.utils.Result;
+import com.example.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -25,12 +27,15 @@ public class AdminServiceImpl implements AdminService {
     private final AdminDao adminDao;
     private final ConsultantDao consultantDao;
     private final SupervisorDao supervisorDao;
+    private final ConsultantSchedulesRepository consultantSchedulesRepository;
 
     @Autowired
-    public AdminServiceImpl(AdminDao adminDao, ConsultantDao consultantDao, SupervisorDao supervisorDao) {
+    public AdminServiceImpl(AdminDao adminDao, ConsultantDao consultantDao, SupervisorDao supervisorDao,
+                            ConsultantSchedulesRepository consultantSchedulesRepository) {
         this.adminDao = adminDao;
         this.consultantDao = consultantDao;
         this.supervisorDao = supervisorDao;
+        this.consultantSchedulesRepository = consultantSchedulesRepository;
     }
 
     public Result<Admin> loginService(Integer AdminId, String password) {
@@ -84,5 +89,38 @@ public class AdminServiceImpl implements AdminService {
         }
         supervisorDao.addSupervisor(supervisor);
         return Result.success(supervisor);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Result<List<Map<String,Object>>> manageConsultantSchedule(List<Map<String,Object>> scheduleList) {
+        LocalDate firstDay = ScheduleGenerator.getFirstDayOfNextMonth();
+        LocalDate lastDay = ScheduleGenerator.getLastDayOfNextMonth(firstDay);
+        for(Map<String,Object> map:scheduleList){
+            ConsultantSchedule schedule = new ConsultantSchedule();
+            if(map.get("consultantId")==null){
+                return Result.error("参数错误");
+            }
+            schedule.setConsultantId((Integer)map.get("consultantId"));
+            if(map.get("time").equals("AM")){
+                schedule.setStartTime(8);
+                schedule.setEndTime(12);
+            }
+            else{
+                schedule.setStartTime(13);
+                schedule.setEndTime(17);
+            }
+
+            String day = (String)map.get("day");
+            if(day==null){
+                return Result.error("参数错误");
+            }
+            for(LocalDate date:ScheduleGenerator.generateDate(firstDay,lastDay,day)){
+                schedule.setAvailableDate(date);
+                if(consultantSchedulesRepository.insertSchedule(schedule)==0){
+                    return Result.error("未知异常");
+                }
+            }
+        }
+        return Result.success(scheduleList);
     }
 }

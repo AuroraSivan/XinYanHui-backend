@@ -10,11 +10,9 @@ import java.time.LocalDate;
 @Data
 public class ConsultantSchedule {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer scheduleId;
 
-    @ManyToOne
-    private Consultant consultant;
+    private Integer consultantId;
 
     private LocalDate availableDate;
     private Integer startTime;
@@ -24,8 +22,8 @@ public class ConsultantSchedule {
     public ConsultantSchedule() {
     }
 
-    public ConsultantSchedule(Consultant consultant, LocalDate availableDate, Integer startTime, Integer endTime) {
-        this.consultant = consultant;
+    public ConsultantSchedule(Integer consultantId, LocalDate availableDate, Integer startTime, Integer endTime) {
+        this.consultantId = consultantId;
         this.availableDate = availableDate;
         this.startTime = startTime;
         this.endTime = endTime;

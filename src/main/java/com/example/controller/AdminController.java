@@ -5,10 +5,10 @@ import com.example.pojo.Supervisor;
 import com.example.service.AdminService;
 import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/internal/admin")
@@ -47,5 +47,18 @@ public class AdminController {
         supervisor.setProfessionalInfo(professionalInfo);
         supervisor.setPassword(password);
         return adminService.addSupervisorService(supervisor);
+    }
+
+    @PostMapping("/schedule/consultant")
+    public Result<List<Map<String,Object>>> manageConsultantSchedule(@RequestBody Map<String,Object> body) {
+        if(!body.containsKey("schedule")){
+            return Result.error("参数错误");
+        }
+
+        List<Map<String,Object>> schedule = (List<Map<String,Object>>) body.get("schedule");
+        if(schedule==null || schedule.isEmpty()){
+            return Result.error("参数错误");
+        }
+        return adminService.manageConsultantSchedule(schedule);
     }
 }
