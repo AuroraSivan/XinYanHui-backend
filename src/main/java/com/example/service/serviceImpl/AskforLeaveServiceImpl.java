@@ -17,7 +17,7 @@ public class AskforLeaveServiceImpl implements AskforLeaveService {
     @Override
     public Result askforLeave(Integer consultantId, String date, String time, String cancellationReason) {
         int hour;
-        if(time.equals("am")){
+        if(time.equals("AM")){
             hour = 8;
         }else {
             hour = 13;
