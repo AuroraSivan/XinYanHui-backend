@@ -16,8 +16,12 @@ public class AskforLeaveServiceImpl implements AskforLeaveService {
 
     @Override
     public Result askforLeave(Integer consultantId, String date, String time, String cancellationReason) {
-        // 将时间转换为小时部分，返回的是整数
-        int hour = convertTimeToHour(time);
+        int hour;
+        if(time.equals("am")){
+            hour = 8;
+        }else {
+            hour = 13;
+        }
 
         // 格式化请假信息，并存入 note 字段
         String leaveNote = String.format("Date: %s, Time: %d, Reason: %s", date, hour, cancellationReason);
@@ -57,12 +61,5 @@ public class AskforLeaveServiceImpl implements AskforLeaveService {
             // 捕获异常并返回错误信息
             return Result.error("2", "系统错误：" + e.getMessage());
         }
-    }
-
-    // 将时间字符串（如 12:00:00）转换为小时（如 12）
-    private int convertTimeToHour(String time) {
-        // 解析时间并获取小时部分
-        LocalTime localTime = LocalTime.parse(time);
-        return localTime.getHour();  // 返回小时部分（int 类型）
     }
 }

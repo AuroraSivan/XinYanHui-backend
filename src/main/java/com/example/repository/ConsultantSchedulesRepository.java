@@ -10,7 +10,7 @@ import java.time.LocalTime;
 @Mapper
 public interface ConsultantSchedulesRepository {
     @Update("UPDATE ConsultantSchedules SET status = 'request', note = #{leaveNote} WHERE consultant_id = #{consultantId} AND available_date = #{date} AND start_time = #{hour}")
-    int updateLeaveRequest(Integer consultantId, String date, int hour, String leaveNote);
+    int updateLeaveRequest(Integer consultantId, String date, Integer hour, String leaveNote);
 
     @Update("UPDATE ConsultantSchedules SET status = 'leave' WHERE schedule_id = #{scheduleId}")
     int updateLeaveApproved(Integer scheduleId);
