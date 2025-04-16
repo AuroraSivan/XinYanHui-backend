@@ -1,9 +1,6 @@
 package com.example.service.serviceImpl;
 
-import com.example.pojo.Admin;
-import com.example.pojo.Consultant;
-import com.example.pojo.ConsultantSchedule;
-import com.example.pojo.Supervisor;
+import com.example.pojo.*;
 import com.example.repository.AdminDao;
 import com.example.repository.ConsultantDao;
 import com.example.repository.ConsultantSchedulesRepository;
@@ -117,6 +114,39 @@ public class AdminServiceImpl implements AdminService {
             for(LocalDate date:ScheduleGenerator.generateDate(firstDay,lastDay,day)){
                 schedule.setAvailableDate(date);
                 if(consultantSchedulesRepository.insertSchedule(schedule)==0){
+                    return Result.error("未知异常");
+                }
+            }
+        }
+        return Result.success(scheduleList);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Result<List<Map<String,Object>>> manageSupervisorSchedule(List<Map<String,Object>> scheduleList) {
+        LocalDate firstDay = ScheduleGenerator.getFirstDayOfNextMonth();
+        LocalDate lastDay = ScheduleGenerator.getLastDayOfNextMonth(firstDay);
+        for(Map<String,Object> map:scheduleList){
+            SupervisorSchedule schedule = new SupervisorSchedule();
+            if(map.get("supervisorId")==null){
+                return Result.error("参数错误");
+            }
+            schedule.setSupervisorId((Integer)map.get("supervisorId"));
+            if(map.get("time").equals("AM")){
+                schedule.setStartTime(8);
+                schedule.setEndTime(12);
+            }
+            else{
+                schedule.setStartTime(13);
+                schedule.setEndTime(17);
+            }
+
+            String day = (String)map.get("day");
+            if(day==null){
+                return Result.error("参数错误");
+            }
+            for(LocalDate date:ScheduleGenerator.generateDate(firstDay,lastDay,day)){
+                schedule.setAvailableDate(date);
+                if(supervisorDao.insertSchedule(schedule)==0){
                     return Result.error("未知异常");
                 }
             }

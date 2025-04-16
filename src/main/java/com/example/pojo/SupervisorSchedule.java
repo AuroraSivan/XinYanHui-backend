@@ -12,8 +12,7 @@ public class SupervisorSchedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer scheduleId;
 
-    @ManyToOne
-    private Supervisor supervisor;
+    private Integer supervisorId;
 
     private LocalDate availableDate;
     private Integer startTime;
@@ -23,8 +22,8 @@ public class SupervisorSchedule {
     public SupervisorSchedule() {
     }
 
-    public SupervisorSchedule(Supervisor supervisor, LocalDate availableDate, Integer startTime, Integer endTime) {
-        this.supervisor = supervisor;
+    public SupervisorSchedule(Integer supervisorId, LocalDate availableDate, Integer startTime, Integer endTime) {
+        this.supervisorId = supervisorId;
         this.availableDate = availableDate;
         this.startTime = startTime;
         this.endTime = endTime;

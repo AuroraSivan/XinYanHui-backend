@@ -61,4 +61,17 @@ public class AdminController {
         }
         return adminService.manageConsultantSchedule(schedule);
     }
+
+    @PostMapping("/schedule/supervisor")
+    public Result<List<Map<String,Object>>> manageSupervisorSchedule(@RequestBody Map<String,Object> body) {
+        if(!body.containsKey("schedule")){
+            return Result.error("参数错误");
+        }
+
+        List<Map<String,Object>> schedule = (List<Map<String,Object>>) body.get("schedule");
+        if(schedule==null || schedule.isEmpty()){
+            return Result.error("参数错误");
+        }
+        return adminService.manageSupervisorSchedule(schedule);
+    }
 }

@@ -17,4 +17,6 @@ public interface AdminService {
     Result<Supervisor> addSupervisorService(Supervisor supervisor);
 
     Result<List<Map<String,Object>>> manageConsultantSchedule(List<Map<String,Object>> scheduleList);
+
+    Result<List<Map<String,Object>>> manageSupervisorSchedule(List<Map<String,Object>> scheduleList);
 }
