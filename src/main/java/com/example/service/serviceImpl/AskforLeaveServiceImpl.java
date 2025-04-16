@@ -34,14 +34,28 @@ public class AskforLeaveServiceImpl implements AskforLeaveService {
 
     @Override
     public Result approveLeave(Integer scheduleId, Boolean isApproved) {
-        if(isApproved){
-            consultantSchedulesRepository.updateLeaveApproved(scheduleId);
-            return Result.success("请假审批成功");
-        }
-        // 更新 ConsultantSchedules 表格中对应 scheduleId 的 status 为 leave
-        else{
-            consultantSchedulesRepository.updateLeaveRejected(scheduleId);
-            return Result.success("2","请假审批失败");
+        try {
+            int rowsAffected;
+            if (isApproved) {
+                // 审批通过，更新状态为 'leave'
+                rowsAffected = consultantSchedulesRepository.updateLeaveApproved(scheduleId);
+                if (rowsAffected > 0) {
+                    return Result.success("请假审批成功");
+                } else {
+                    return Result.error("2", "未找到对应的请假记录");
+                }
+            } else {
+                // 审批拒绝，更新状态为 'rejected'
+                rowsAffected = consultantSchedulesRepository.updateLeaveRejected(scheduleId);
+                if (rowsAffected > 0) {
+                    return Result.success("请假审批拒绝成功");
+                } else {
+                    return Result.error("2", "未找到对应的请假记录");
+                }
+            }
+        } catch (Exception e) {
+            // 捕获异常并返回错误信息
+            return Result.error("2", "系统错误：" + e.getMessage());
         }
     }
 

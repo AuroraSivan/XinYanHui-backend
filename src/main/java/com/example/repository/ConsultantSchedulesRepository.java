@@ -13,8 +13,8 @@ public interface ConsultantSchedulesRepository {
     int updateLeaveRequest(Integer consultantId, String date, int hour, String leaveNote);
 
     @Update("UPDATE ConsultantSchedules SET status = 'leave' WHERE schedule_id = #{scheduleId}")
-    void updateLeaveApproved(Integer scheduleId);
+    int updateLeaveApproved(Integer scheduleId);
 
     @Update("UPDATE ConsultantSchedules SET status = 'reject' WHERE schedule_id = #{scheduleId}")
-    void updateLeaveRejected(Integer scheduleId);
+    int updateLeaveRejected(Integer scheduleId);
 }

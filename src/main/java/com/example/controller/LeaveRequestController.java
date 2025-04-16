@@ -27,9 +27,10 @@ public class LeaveRequestController {
     }
 
     @PostMapping("/admin/approveLeave")
-    public Result approveLeave(@RequestParam Integer scheduleId,@RequestParam Boolean isApproved) {
+    public Result approveLeave(@RequestBody Map<String, Object> body) {
+        Integer scheduleId = (Integer) body.get("scheduleId");
+        Boolean isApproved = (Boolean) body.get("isApproved");
 
-        // 调用服务层方法
-        return askforLeaveService.approveLeave(scheduleId,isApproved);
+        return askforLeaveService.approveLeave(scheduleId, isApproved);
     }
 }
