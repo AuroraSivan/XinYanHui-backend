@@ -3,10 +3,9 @@ package com.example.service.serviceImpl;
 import com.example.repository.ConsultantSchedulesRepository;
 import com.example.service.AskforLeaveService;
 import com.example.utils.Result;
+import com.example.websocket.NotificationHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalTime;
 
 @Service
 public class AskforLeaveServiceImpl implements AskforLeaveService {
@@ -17,10 +16,14 @@ public class AskforLeaveServiceImpl implements AskforLeaveService {
     @Override
     public Result askforLeave(Integer consultantId, String date, String time, String cancellationReason) {
         int hour;
-        if(time.equals("AM")){
-            hour = 8;
-        }else {
-            hour = 13;
+        if (time.equals("AM")) {
+            hour = 8;  // AM
+        }
+        else if(time.equals("PM")){
+            hour = 13; // PM
+        }
+        else{
+            return Result.error("参数错误");
         }
 
         // 格式化请假信息，并存入 note 字段
@@ -30,6 +33,8 @@ public class AskforLeaveServiceImpl implements AskforLeaveService {
         int rowsAffected = consultantSchedulesRepository.updateLeaveRequest(consultantId, date, hour, leaveNote);
 
         if (rowsAffected > 0) {
+            // 发送通知给管理员
+            NotificationHandler.sendLeaveNotificationToAdmin("新的请假申请：咨询师ID " + consultantId + " 申请请假，时间：" + date + " " + time + ", 原因：" + cancellationReason);
             return Result.success("请假申请成功");
         } else {
             return Result.error("2", "请假申请失败");
@@ -40,26 +45,22 @@ public class AskforLeaveServiceImpl implements AskforLeaveService {
     public Result approveLeave(Integer scheduleId, Boolean isApproved) {
         try {
             int rowsAffected;
+            String approvalMessage;
             if (isApproved) {
                 // 审批通过，更新状态为 'leave'
                 rowsAffected = consultantSchedulesRepository.updateLeaveApproved(scheduleId);
-                if (rowsAffected > 0) {
-                    return Result.success("请假审批成功");
-                } else {
-                    return Result.error("2", "未找到对应的请假记录");
-                }
+                approvalMessage = "请假申请已通过";
+                NotificationHandler.sendLeaveNotificationToConsultant(approvalMessage + "，请假记录ID：" + scheduleId);
+                return Result.success("请假审批成功");
             } else {
                 // 审批拒绝，更新状态为 'rejected'
                 rowsAffected = consultantSchedulesRepository.updateLeaveRejected(scheduleId);
-                if (rowsAffected > 0) {
-                    return Result.success("请假审批拒绝成功");
-                } else {
-                    return Result.error("2", "未找到对应的请假记录");
-                }
+                approvalMessage = "请假申请已拒绝";
+                NotificationHandler.sendLeaveNotificationToConsultant(approvalMessage + "，请假记录ID：" + scheduleId);
+                return Result.success("请假审批已拒绝");
             }
         } catch (Exception e) {
-            // 捕获异常并返回错误信息
-            return Result.error("2", "系统错误：" + e.getMessage());
+            return Result.error("500", "审批过程中出现错误：" + e.getMessage());
         }
     }
 }

@@ -17,7 +17,7 @@ public interface ConsultantSchedulesRepository {
     @Update("UPDATE ConsultantSchedules SET status = 'leave' WHERE schedule_id = #{scheduleId}")
     int updateLeaveApproved(Integer scheduleId);
 
-    @Update("UPDATE ConsultantSchedules SET status = 'reject' WHERE schedule_id = #{scheduleId}")
+    @Update("UPDATE ConsultantSchedules SET status = 'normal' WHERE schedule_id = #{scheduleId}")
     int updateLeaveRejected(Integer scheduleId);
 
     @Insert("INSERT INTO ConsultantSchedules (consultant_id, available_date, start_time, end_time) VALUES (#{consultantId}, #{availableDate}, #{startTime}, #{endTime})")
