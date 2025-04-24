@@ -1,4 +1,4 @@
-package org.example.SimpleChat.config;
+package com.example.config;
 
 import jakarta.websocket.HandshakeResponse;
 import jakarta.websocket.server.HandshakeRequest;
@@ -8,16 +8,17 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @Component
-public class WebSocketConfigurator extends ServerEndpointConfig.Configurator {
+public class ChatWebSocketConfigurator extends ServerEndpointConfig.Configurator {
 
     private static AutowireCapableBeanFactory factory;
 
     @Autowired
     public void setApplicationContext(ApplicationContext applicationContext) {
-        WebSocketConfigurator.factory = applicationContext.getAutowireCapableBeanFactory();
+        ChatWebSocketConfigurator.factory = applicationContext.getAutowireCapableBeanFactory();
     }
 
     @Override
@@ -35,10 +36,12 @@ public class WebSocketConfigurator extends ServerEndpointConfig.Configurator {
         // 将参数存储到 UserProperties 中，以便在 @OnOpen 中使用
       //  String user = parameterMap.get("user").get(0);
         String token = parameterMap.get("token").get(0);
+        String type = parameterMap.get("type").get(0);
         String sessionId = parameterMap.get("sessionId").get(0);
 
       //  sec.getUserProperties().put("user", user);
         sec.getUserProperties().put("token", token);
+        sec.getUserProperties().put("type", type);
         sec.getUserProperties().put("sessionId", sessionId);
     }
 
