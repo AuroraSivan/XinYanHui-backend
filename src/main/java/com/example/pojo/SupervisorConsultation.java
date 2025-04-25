@@ -1,41 +1,31 @@
 package com.example.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Data
+@AllArgsConstructor
+@TableName("SupervisorConsultations")
 public class SupervisorConsultation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Integer recordId;
 
-    @ManyToOne
-    private Consultant consultant;
-
-    @ManyToOne
-    private Supervisor supervisor;
-
-    @OneToOne
-    private ConsultationSession session;
+    private Integer consultantId;
+    private Integer supervisorId;
+    private Integer sessionId;
 
     private LocalDateTime requestTime;
     private LocalDateTime responseTime;
-    private String chatLog;
 
     public SupervisorConsultation() {
     }
-
-    public SupervisorConsultation(Consultant consultant, Supervisor supervisor, ConsultationSession session, LocalDateTime requestTime, LocalDateTime responseTime, String chatLog) {
-        this.consultant = consultant;
-        this.supervisor = supervisor;
-        this.session = session;
-        this.requestTime = requestTime;
-        this.responseTime = responseTime;
-        this.chatLog = chatLog;
-    }
-
 
 }

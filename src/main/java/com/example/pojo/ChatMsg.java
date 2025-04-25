@@ -12,6 +12,6 @@ public class ChatMsg {
     private String msg;
     private boolean senderType;    //false(0) is user/supervisor,(true) 1 is consultant
 
-    @JSONField
+    @JSONField(format = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime time;
 }
