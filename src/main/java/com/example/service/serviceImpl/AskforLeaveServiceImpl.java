@@ -4,7 +4,6 @@ import com.example.pojo.ConsultantSchedule;
 import com.example.repository.ConsultantSchedulesRepository;
 import com.example.service.AskforLeaveService;
 import com.example.utils.Result;
-import com.example.websocket.NotificationHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +36,7 @@ public class AskforLeaveServiceImpl implements AskforLeaveService {
 
         if (rowsAffected > 0) {
             // 发送通知给管理员
-            NotificationHandler.sendLeaveNotificationToAdmin("新的请假申请：咨询师ID " + consultantId + " 申请请假，时间：" + date + " " + time + ", 原因：" + cancellationReason);
+          //  NotificationHandler.sendLeaveNotificationToAdmin("新的请假申请：咨询师ID " + consultantId + " 申请请假，时间：" + date + " " + time + ", 原因：" + cancellationReason);
             return Result.success("请假申请成功");
         } else {
             return Result.error("2", "请假申请失败");
@@ -53,13 +52,13 @@ public class AskforLeaveServiceImpl implements AskforLeaveService {
                 // 审批通过，更新状态为 'leave'
                 rowsAffected = consultantSchedulesRepository.updateLeaveApproved(scheduleId);
                 approvalMessage = "请假申请已通过";
-                NotificationHandler.sendLeaveNotificationToConsultant(approvalMessage + "，请假记录ID：" + scheduleId);
+               // NotificationHandler.sendLeaveNotificationToConsultant(approvalMessage + "，请假记录ID：" + scheduleId);
                 return Result.success("请假审批成功");
             } else {
                 // 审批拒绝，更新状态为 'rejected'
                 rowsAffected = consultantSchedulesRepository.updateLeaveRejected(scheduleId);
                 approvalMessage = "请假申请已拒绝";
-                NotificationHandler.sendLeaveNotificationToConsultant(approvalMessage + "，请假记录ID：" + scheduleId);
+              //  NotificationHandler.sendLeaveNotificationToConsultant(approvalMessage + "，请假记录ID：" + scheduleId);
                 return Result.success("请假审批已拒绝");
             }
         } catch (Exception e) {

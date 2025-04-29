@@ -31,7 +31,7 @@ public class SupervisorServiceImpl implements SupervisorService {
             }
             else{
                 Map<String,Object> claims = new HashMap<>();
-                claims.put("type","consultant");
+                claims.put("type","supervisor");
                 claims.put("id",supervisor.getSupervisorId());
                 supervisor.setToken(JwtUtil.generateJwt(claims));
                 return Result.success(supervisor);

@@ -61,21 +61,21 @@ ws://localhost:8080/notify
 }
 ```
 
-#### 
+
 
 ```json
 {
-    "type": 1,     //1表示咨询师请假后，来访收到的取消通知
+    "type": 1,     //1表示咨询师请假后，来访收到的取消通知；或来访取消后咨询师收到的通知
     "msg":"您好，您有一条预约状态变更",
     "time":"2025-03-20T08:26:45.3917069"
     "data":{
     	"apointmentId":3,
-    	"consultantId":5   //便于其重新预约
+    	"consultantId":5   //便于其重新预约，若是来访者取消没有该数据
 	}
 }
 ```
 
-#### 
+
 
 ```json
 {
@@ -83,8 +83,7 @@ ws://localhost:8080/notify
     "msg":"您有新的对话",
     "time":"2025-03-20T08:26:45.3917069"
     "data":{
-    	"sessionId":4,
-    	"name":"王丽"
+    	"sessionId":4   //如果是咨询师求助督导，key为recordId
 	}
 }
 ```

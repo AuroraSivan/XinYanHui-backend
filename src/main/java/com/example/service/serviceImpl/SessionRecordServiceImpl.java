@@ -1,11 +1,15 @@
 package com.example.service.serviceImpl;
 
+import com.example.constants.TypeConstant;
 import com.example.pojo.ConSessionStatus;
 import com.example.pojo.ConsultationSession;
+import com.example.pojo.NotifyMsg;
 import com.example.pojo.SupervisorConsultation;
 import com.example.repository.ConsultantDao;
 import com.example.repository.ConsultationSessionDao;
 import com.example.repository.SupervisorConsultationDao;
+import com.example.repository.UserDao;
+import com.example.service.NotifyService;
 import com.example.service.SessionRecordService;
 import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +25,17 @@ public class SessionRecordServiceImpl implements SessionRecordService {
     private final ConsultationSessionDao  consultationSessionDao;
     private final SupervisorConsultationDao supervisorConsultationDao;
     private final ConsultantDao consultantDao;
+    private final NotifyService notifyService;
+  //  private final UserDao userDao;
 
     @Autowired
     public SessionRecordServiceImpl(ConsultationSessionDao consultationSessionDao, SupervisorConsultationDao supervisorConsultationDao,
-                                    ConsultantDao consultantDao) {
+                                 ConsultantDao consultantDao,  NotifyService notifyService /*, UserDao userDao */) {
         this.consultationSessionDao = consultationSessionDao;
         this.supervisorConsultationDao = supervisorConsultationDao;
         this.consultantDao = consultantDao;
+        this.notifyService = notifyService;
+       // this.userDao = userDao;
     }
 
     @Override
@@ -47,6 +55,10 @@ public class SessionRecordServiceImpl implements SessionRecordService {
         if (consultationSessionDao.insert(cs) == 1) {
             Map<String, Integer> map = new HashMap<>();
             map.put("sessionId", cs.getSessionId());
+            //通知咨询师
+            NotifyMsg msg = NotifyMsg.getSessionMsg(map);
+            notifyService.sendMessage(consultantId, TypeConstant.CONSULTANT_INT, msg);
+            // 封装返回数据
             map.put("userId",  cs.getUserId());
             map.put("consultantId", cs.getConsultantId());
             return Result.success(map);
@@ -66,6 +78,10 @@ public class SessionRecordServiceImpl implements SessionRecordService {
         if (supervisorConsultationDao.insert(sc) == 1) {
             Map<String, Integer> map = new HashMap<>();
             map.put("recordId", sc.getRecordId());
+            //通知督导
+            NotifyMsg msg = NotifyMsg.getSessionMsg(map);
+            notifyService.sendMessage(sc.getSupervisorId(), TypeConstant.SUPERVISOR_INT, msg);
+            // 封装返回数据
             map.put("sessionId", sc.getSessionId());
             map.put("consultantId", sc.getConsultantId());
             map.put("supervisorId", sc.getSupervisorId());
