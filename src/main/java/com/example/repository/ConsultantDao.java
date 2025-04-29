@@ -20,7 +20,10 @@ public interface ConsultantDao  {
     @Select("insert into Consultants(consultant_id,name,professional_info,password_HashwithSalt,salt) values(#{consultantId},#{name},#{professionalInfo},#{password},#{salt})")
     void addConsultant(Consultant consultant);
 
-   //Get consultant list who are scheduled for the next 6 days or available now
+    @Select("select consultant_id,name,professional_info from Consultants where consultant_id=#{Id}")
+    List<Consultant> getConsultant(Integer Id);
+
+    //Get consultant list who are scheduled for the next 6 days or available now
     List<Consultant> getScheduledConsultants();
 
     List<Consultant> getScheduledConsultantsByDate(LocalDate date);

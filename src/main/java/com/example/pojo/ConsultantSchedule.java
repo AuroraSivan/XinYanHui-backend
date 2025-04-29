@@ -18,6 +18,8 @@ public class ConsultantSchedule {
     private Integer startTime;
     private Integer endTime;
     private Integer slotCapacity = 5;
+    private String status;
+    private String note;
 
     public ConsultantSchedule() {
     }

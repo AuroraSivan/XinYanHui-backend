@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface SupervisorDao{
     @Select("select supervisor_id,name,professional_info,password_HashwithSalt,salt from Supervisors where supervisor_id=#{Id} and password_HashwithSalt=#{password}")
@@ -20,4 +22,7 @@ public interface SupervisorDao{
 
     @Insert("INSERT INTO SupervisorSchedules (supervisor_id, available_date, start_time, end_time) VALUES (#{supervisorId}, #{availableDate}, #{startTime}, #{endTime})")
     public int insertSchedule(SupervisorSchedule supervisorSchedule) ;
+
+    @Select("select supervisor_id,name,professional_info from Supervisors where supervisor_id=#{Id}")
+    List<Supervisor> getByIdAndPassword(Integer Id);
 }

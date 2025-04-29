@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Update;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Mapper
 public interface ConsultantSchedulesRepository {
@@ -22,4 +23,10 @@ public interface ConsultantSchedulesRepository {
 
     @Insert("INSERT INTO ConsultantSchedules (consultant_id, available_date, start_time, end_time) VALUES (#{consultantId}, #{availableDate}, #{startTime}, #{endTime})")
     int insertSchedule(ConsultantSchedule schedule);
+
+    @Select("SELECT * FROM ConsultantSchedules WHERE status = #{status}")
+    List<ConsultantSchedule> getScheduleByStatus(String status);
+
+    @Select("SELECT * FROM ConsultantSchedules WHERE consultant_id = #{consultantId}")
+    List<ConsultantSchedule> getScheduleById(Integer consultantId);
 }

@@ -1,11 +1,14 @@
 package com.example.service.serviceImpl;
 
+import com.example.pojo.ConsultantSchedule;
 import com.example.repository.ConsultantSchedulesRepository;
 import com.example.service.AskforLeaveService;
 import com.example.utils.Result;
 import com.example.websocket.NotificationHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AskforLeaveServiceImpl implements AskforLeaveService {
@@ -62,5 +65,17 @@ public class AskforLeaveServiceImpl implements AskforLeaveService {
         } catch (Exception e) {
             return Result.error("500", "审批过程中出现错误：" + e.getMessage());
         }
+    }
+
+    @Override
+    public Result viewLeave() {
+        String status = "request";
+        List<ConsultantSchedule> schedules = consultantSchedulesRepository.getScheduleByStatus(status);
+
+        if (schedules == null || schedules.isEmpty()) {
+            return Result.error("2", "暂无待审批的请假申请");
+        }
+
+        return Result.success(schedules);
     }
 }

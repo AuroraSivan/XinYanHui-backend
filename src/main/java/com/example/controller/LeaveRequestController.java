@@ -33,4 +33,9 @@ public class LeaveRequestController {
 
         return askforLeaveService.approveLeave(scheduleId, isApproved);
     }
+
+    @GetMapping("/admin/getLeaveList")
+    public Result getLeaveList() {
+        return askforLeaveService.viewLeave();
+    }
 }

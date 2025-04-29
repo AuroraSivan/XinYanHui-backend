@@ -7,4 +7,5 @@ import org.springframework.stereotype.Service;
 public interface AskforLeaveService {
     Result askforLeave(Integer consultantId, String date, String time, String cancellationReason);
     Result approveLeave(Integer scheduleId, Boolean isApproved);
+    Result viewLeave();
 }
