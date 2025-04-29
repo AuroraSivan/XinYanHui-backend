@@ -1,17 +1,18 @@
 package com.example.service.serviceImpl;
 
 import com.alibaba.fastjson.JSON;
+import com.example.constants.ChatConstant;
 import com.example.pojo.ChatMsg;
 import com.example.pojo.ConSessionStatus;
 import com.example.pojo.ConsultationSession;
 import com.example.pojo.SupervisorConsultation;
-import com.example.repository.ConsultationSessionDao;
-import com.example.repository.SupervisorConsultationDao;
+import com.example.repository.*;
 import com.example.service.ChatService;
 import com.example.utils.WsChatMsgUtil;
 import jakarta.websocket.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -31,6 +33,10 @@ public class ChatServiceImpl implements ChatService {
     private final  StringRedisTemplate redisTemplate;
     private final ConsultationSessionDao consultationSessionDao;
     private final SupervisorConsultationDao supervisorConsultationDao;
+    private ChatLogDao chatLogDao;
+    private SupervisorDao supervisorDao;
+    private UserDao userDao;
+    private ConsultantDao consultantDao;
 
     @Autowired
     public ChatServiceImpl(StringRedisTemplate redisTemplate,ConsultationSessionDao consultationSessionDao,
@@ -40,6 +46,25 @@ public class ChatServiceImpl implements ChatService {
         this.supervisorConsultationDao = supervisorConsultationDao;
     }
 
+    @Autowired
+    public void setChatLogDao(ChatLogDao chatLogDao) {
+        this.chatLogDao = chatLogDao;
+    }
+
+    @Autowired
+    public void setSupervisorDao(SupervisorDao supervisorDao) {
+        this.supervisorDao = supervisorDao;
+    }
+
+    @Autowired
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    @Autowired
+    public void setConsultantDao(ConsultantDao consultantDao) {
+        this.consultantDao = consultantDao;
+    }
 
     @Override
     @Transactional
@@ -54,7 +79,8 @@ public class ChatServiceImpl implements ChatService {
         else if(userType.equals("supervisor")){
             onlineSupervisors.put(sessionId, session);
             //放入redis
-            redisTemplate.opsForSet().add("chat:sessionSet:supervisor:"+id, sessionId);
+            redisTemplate.opsForSet().add("chat:sessionSet:supervisor:"+id, sessionId);  //咨询师对话列表
+            redisTemplate.expire("chat:sessionSet:supervisor:"+id, ChatConstant.SESSION_TIMEOUT, TimeUnit.SECONDS);
             if(onlineConsultants.containsKey(1+":"+sessionId)){
                 //修改数据库中的session状态和开启时间
                 responseSupervise(sessionId);
@@ -63,7 +89,8 @@ public class ChatServiceImpl implements ChatService {
         else if(userType.equals("consultant")){
             onlineConsultants.put(sessionType+":"+sessionId, session);
             //放入redis
-            redisTemplate.opsForSet().add("chat:sessionSet:consultant:"+id+":"+sessionType, sessionId);
+            redisTemplate.opsForSet().add("chat:sessionSet:consultant:"+id+":"+sessionType, sessionId);   //咨询师对话set
+            redisTemplate.expire("chat:sessionSet:consultant:"+id+":"+sessionType, ChatConstant.SESSION_TIMEOUT, TimeUnit.SECONDS);
             //修改数据库中的session状态和开启时间
             if(sessionType==0 && onlineUsers.containsKey(sessionId)){
                 //修改数据库中的session状态和开启时间
@@ -75,7 +102,17 @@ public class ChatServiceImpl implements ChatService {
             }
         }
         //向对话中传递系统消息，该用户上线
-        String message = WsChatMsgUtil.getWsChatMsgJson(true, "用户"+id+"已进入会话", LocalDateTime.now());
+        String username =null;
+        if(userType.equals("user")){
+            username = "来访者 "+userDao.findNameById(id);
+        }
+        else if(userType.equals("supervisor")){
+            username = "督导 "+supervisorDao.getNameById(id);
+        }
+        else if(userType.equals("consultant")){
+            username = "咨询师 "+consultantDao.getNameById(id);
+        }
+        String message = WsChatMsgUtil.getWsChatMsgJson(true, username+"已进入会话", LocalDateTime.now());
         try {
             broadcast(sessionId, sessionType, message);
         } catch (IOException e) {
@@ -95,7 +132,6 @@ public class ChatServiceImpl implements ChatService {
         else if(userType.equals("supervisor")){
             onlineSupervisors.remove(sessionId);
             redisTemplate.opsForSet().remove("chat:sessionSet:supervisor:"+id, sessionId);
-            //修改数据库中的session状态和结束时间
         }
         else if(userType.equals("consultant")){
             onlineConsultants.remove(sessionType+":"+sessionId);
@@ -114,19 +150,25 @@ public class ChatServiceImpl implements ChatService {
             log.info("出现IO异常");
         }
         //对聊天记录进行持久化操作
+        try{
+            saveChatLog(sessionId, sessionType);
+        } catch (Exception e) {
+            log.info("聊天记录持久化失败");
+        }
+
     }
 
     @Override
     @Transactional
     public void sendMessage(String sessionId, int senderId, String userType, int sessionType, String message) {
         Session session = null;
-        if(userType.equals("user") || userType.equals("supervisor")){
-            session = onlineUsers.get(sessionType+":"+sessionId);
+        if(userType.equals("user") || userType.equals("supervisor")){  //要发送消息给咨询师
+            session = onlineConsultants.get(sessionType+":"+sessionId);
         }
-        else if(sessionType==0){
+        else if(sessionType==0){    //咨询师向来访发送消息
             session = onlineUsers.get(sessionId);
         }
-        else{
+        else{                      //咨询师向督导发送消息
             session = onlineSupervisors.get(sessionId);
         }
 
@@ -136,7 +178,7 @@ public class ChatServiceImpl implements ChatService {
         LocalDateTime time = LocalDateTime.now();
         ChatMsg chatMsg = new ChatMsg(message, userType.equals("consultant"), time);
         redisTemplate.opsForList().leftPush("chat:msg:list:"+sessionType+":"+sessionId, JSON.toJSONString(chatMsg));
-        redisTemplate.opsForValue().set("chat:msg:last:"+sessionType+":"+sessionId, JSON.toJSONString(chatMsg));
+        redisTemplate.opsForValue().set("chat:msg:last:"+sessionType+":"+sessionId, JSON.toJSONString(chatMsg), ChatConstant.SESSION_TIMEOUT, TimeUnit.SECONDS);
         //发送消息
         String msg = WsChatMsgUtil.getWsChatMsgJson(false, message, time);
         try{
@@ -214,5 +256,23 @@ public class ChatServiceImpl implements ChatService {
         sc.setRecordId(Integer.parseInt(sessionId));
         sc.setResponseTime(LocalDateTime.now());
         supervisorConsultationDao.updateById(sc);
+    }
+
+    @Transactional
+    protected void saveChatLog(String sessionId, int sessionType) {
+        String key = "chat:msg:list:"+sessionType+":"+sessionId;
+        if(Boolean.FALSE.equals(redisTemplate.hasKey(key))){
+            return ;
+        }
+        while(redisTemplate.opsForList().size(key)>0){
+            ChatMsg chatMsg = JSON.parseObject(redisTemplate.opsForList().rightPop(key), ChatMsg.class);
+            if(sessionType==1){
+                chatLogDao.addRecordChatLog(Integer.parseInt(sessionId), chatMsg);
+            }
+            else{
+                chatLogDao.addSessionChatLog(Integer.parseInt(sessionId), chatMsg);
+            }
+        }
+        redisTemplate.delete(key);
     }
 }
