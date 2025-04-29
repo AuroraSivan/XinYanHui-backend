@@ -23,6 +23,9 @@ public interface ConsultantDao  {
     @Select("select consultant_id,name,professional_info from Consultants where consultant_id=#{Id}")
     List<Consultant> getConsultant(Integer Id);
 
+    @Select("select name from Consultants where consultant_id=#{id}")
+    String getNameById(Integer id);
+
     //Get consultant list who are scheduled for the next 6 days or available now
     List<Consultant> getScheduledConsultants();
 

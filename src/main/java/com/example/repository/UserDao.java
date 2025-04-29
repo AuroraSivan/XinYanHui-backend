@@ -28,4 +28,7 @@ public interface UserDao {
 
     @Insert("INSERT INTO Users (username, password_HashwithSalt, salt, email, phone, register_date) VALUES (#{username}, #{password}, #{salt}, #{email}, #{phone}, NOW())")
     void save(User user);
+
+    @Select("SELECT username FROM Users WHERE user_id = #{id}")
+    String findNameById(Integer id);
 }

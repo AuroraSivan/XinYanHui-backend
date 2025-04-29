@@ -25,4 +25,7 @@ public interface SupervisorDao{
 
     @Select("select supervisor_id,name,professional_info from Supervisors where supervisor_id=#{Id}")
     List<Supervisor> getByIdAndPassword(Integer Id);
+
+    @Select("select name from Supervisors where supervisor_id=#{id}")
+    String getNameById(Integer id);
 }
