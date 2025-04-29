@@ -228,6 +228,7 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
+
     private void activeSession(String sessionId){
         ConsultationSession cs = new ConsultationSession();
         cs.setSessionId(Integer.parseInt(sessionId));

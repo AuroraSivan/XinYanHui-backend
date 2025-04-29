@@ -41,4 +41,7 @@ public interface ConsultantDao  {
     //get available status now
     @Select("select is_available from CurrentAvailability where consultant_id=#{id}")
     Short getAvailableStatus(Integer id);
+
+    @Select("select supervisor_id from Consultants where consultant_id=#{id}")
+    Integer findSupervisorIdById(Integer id);
 }
