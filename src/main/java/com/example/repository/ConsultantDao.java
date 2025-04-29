@@ -20,8 +20,8 @@ public interface ConsultantDao  {
     @Select("insert into Consultants(consultant_id,name,professional_info,password_HashwithSalt,salt) values(#{consultantId},#{name},#{professionalInfo},#{password},#{salt})")
     void addConsultant(Consultant consultant);
 
-    @Select("select consultant_id,name,professional_info from Consultants where consultant_id=#{Id}")
-    List<Consultant> getConsultant(Integer Id);
+    @Select("select consultant_id,name,professional_info from Consultants")
+    List<Consultant> getAllConsultants();
 
     @Select("select name from Consultants where consultant_id=#{id}")
     String getNameById(Integer id);

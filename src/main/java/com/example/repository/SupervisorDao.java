@@ -23,8 +23,8 @@ public interface SupervisorDao{
     @Insert("INSERT INTO SupervisorSchedules (supervisor_id, available_date, start_time, end_time) VALUES (#{supervisorId}, #{availableDate}, #{startTime}, #{endTime})")
     public int insertSchedule(SupervisorSchedule supervisorSchedule) ;
 
-    @Select("select supervisor_id,name,professional_info from Supervisors where supervisor_id=#{Id}")
-    List<Supervisor> getByIdAndPassword(Integer Id);
+    @Select("select supervisor_id,name,professional_info from Supervisors")
+    List<Supervisor> getAllSupervisors();
 
     @Select("select name from Supervisors where supervisor_id=#{id}")
     String getNameById(Integer id);

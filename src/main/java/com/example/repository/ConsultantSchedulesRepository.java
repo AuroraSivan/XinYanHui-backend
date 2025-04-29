@@ -1,6 +1,7 @@
 package com.example.repository;
 
 import com.example.pojo.ConsultantSchedule;
+import com.example.pojo.SupervisorSchedule;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -28,5 +29,8 @@ public interface ConsultantSchedulesRepository {
     List<ConsultantSchedule> getScheduleByStatus(String status);
 
     @Select("SELECT * FROM ConsultantSchedules WHERE consultant_id = #{consultantId}")
-    List<ConsultantSchedule> getScheduleById(Integer consultantId);
+    List<ConsultantSchedule> getConsultantScheduleById(Integer consultantId);
+
+    @Select("SELECT * FROM SupervisorSchedules WHERE supervisor_id = #{supervisorId}")
+    List<SupervisorSchedule> getSupervisorScheduleById(Integer supervisorId);
 }

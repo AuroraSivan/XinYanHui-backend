@@ -1,10 +1,9 @@
 package com.example.service.serviceImpl;
 
-import com.example.pojo.AfternoonAvailableRecord;
-import com.example.pojo.AvailableStatus;
-import com.example.pojo.Consultant;
-import com.example.pojo.MorningAvailableRecord;
+import com.example.pojo.*;
 import com.example.repository.ConsultantDao;
+import com.example.repository.ConsultantSchedulesRepository;
+import com.example.repository.SupervisorDao;
 import com.example.service.ViewService;
 import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,36 @@ public class ViewServiceImpl implements ViewService {
     @Autowired
     public ViewServiceImpl(ConsultantDao consultantDao) {
         this.consultantDao = consultantDao;
+    }
+
+    @Autowired
+    private ConsultantSchedulesRepository consultantSchedulesRepository;
+
+    @Autowired
+    private SupervisorDao supervisorDao;
+
+    // consultant查看自己的排班
+    @Override
+    public Result<List<ConsultantSchedule>> getConsultantSchedule(Integer consultantId) {
+        return Result.success(consultantSchedulesRepository.getConsultantScheduleById(consultantId));
+    }
+
+    // supervisor查看自己的排班
+    @Override
+    public Result<List<SupervisorSchedule>> getSupervisorSchedule(Integer supervisorId) {
+        return Result.success(consultantSchedulesRepository.getSupervisorScheduleById(supervisorId));
+    }
+
+    // admin查看所有consultant列表
+    @Override
+    public Result<List<Consultant>> getAllConsultants() {
+        return Result.success(consultantDao.getAllConsultants());
+    }
+
+    // admin查看所有supervisor列表
+    @Override
+    public Result<List<Supervisor>> getAllSupervisors() {
+        return Result.success(supervisorDao.getAllSupervisors());
     }
 
     @Override
