@@ -1,14 +1,12 @@
 package com.example.service.serviceImpl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.constants.TypeConstant;
 import com.example.pojo.ConSessionStatus;
 import com.example.pojo.ConsultationSession;
 import com.example.pojo.NotifyMsg;
 import com.example.pojo.SupervisorConsultation;
-import com.example.repository.ConsultantDao;
-import com.example.repository.ConsultationSessionDao;
-import com.example.repository.SupervisorConsultationDao;
-import com.example.repository.UserDao;
+import com.example.repository.*;
 import com.example.service.NotifyService;
 import com.example.service.SessionRecordService;
 import com.example.utils.Result;
@@ -16,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,14 +26,17 @@ public class SessionRecordServiceImpl implements SessionRecordService {
     private final ConsultantDao consultantDao;
     private final NotifyService notifyService;
   //  private final UserDao userDao;
+    private final AppointmentRepository appointmentRepository;
 
     @Autowired
     public SessionRecordServiceImpl(ConsultationSessionDao consultationSessionDao, SupervisorConsultationDao supervisorConsultationDao,
-                                 ConsultantDao consultantDao,  NotifyService notifyService /*, UserDao userDao */) {
+                                 ConsultantDao consultantDao,  NotifyService notifyService,
+                                AppointmentRepository appointmentRepository/*, UserDao userDao */) {
         this.consultationSessionDao = consultationSessionDao;
         this.supervisorConsultationDao = supervisorConsultationDao;
         this.consultantDao = consultantDao;
         this.notifyService = notifyService;
+        this.appointmentRepository = appointmentRepository;
        // this.userDao = userDao;
     }
 
@@ -47,11 +49,24 @@ public class SessionRecordServiceImpl implements SessionRecordService {
     @Override
     @Transactional
     public Result<Map<String, Integer>> newSession(int consultantId, int userId) {
+        //检查两小时内用户是否有会话
+        QueryWrapper<ConsultationSession> query = new QueryWrapper<>();
+        query.eq("user_id", userId)
+                .ge("start_time", LocalDateTime.now().minusHours(2));
+        if (consultationSessionDao.selectCount(query) > 0) {
+            return Result.error("两小时内已存在会话,当前无法开启新会话");
+        }
+        //检查用户三天内是否有预约
+        int count =appointmentRepository.countAppointmentsByDateRange(userId,LocalDate.now().minusDays(3),LocalDate.now().plusDays(3));
+        if(count>0){
+            return Result.error("三天内已有预约,当前无法开启新会话");
+        }
+        //封装会话信息，并存入数据库
         ConsultationSession cs = new ConsultationSession();
-        cs.setConsultantId(consultantId);
         cs.setUserId(userId);
         cs.setStartTime(LocalDateTime.now());
         cs.setSessionStatus(ConSessionStatus.READY);
+        cs.setConsultantId(consultantId);
         if (consultationSessionDao.insert(cs) == 1) {
             Map<String, Integer> map = new HashMap<>();
             map.put("sessionId", cs.getSessionId());
@@ -77,11 +92,15 @@ public class SessionRecordServiceImpl implements SessionRecordService {
         sc.setRequestTime(LocalDateTime.now());
         if (supervisorConsultationDao.insert(sc) == 1) {
             Map<String, Integer> map = new HashMap<>();
-            map.put("recordId", sc.getRecordId());
+            //封装notify数据
+            map.put("sessionId", sc.getRecordId());
+            map.put("observeSessionId", sc.getSessionId());
             //通知督导
             NotifyMsg msg = NotifyMsg.getSessionMsg(map);
             notifyService.sendMessage(sc.getSupervisorId(), TypeConstant.SUPERVISOR_INT, msg);
+            map.remove("observeSessionId");
             // 封装返回数据
+            map.put("recordId", sc.getRecordId());
             map.put("sessionId", sc.getSessionId());
             map.put("consultantId", sc.getConsultantId());
             map.put("supervisorId", sc.getSupervisorId());

@@ -1,5 +1,6 @@
 package com.example.pojo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.example.constants.NotifyConstant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +14,8 @@ import java.time.LocalDateTime;
 public class NotifyMsg {
     private int type;
     private String msg;
+
+    @JSONField(format="yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime time;
     private Object data;
 

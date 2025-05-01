@@ -47,6 +47,10 @@ public class AppointmentServiceImpl implements AppointmentService {
             return Result.error("您已在该时间段预约了其他咨询师，请选择其他时间");
         }
 
+        int count = appointmentRepository.countAppointmentsByDateRange(appointment.getUserId(),appointmentDate.minusDays(3),appointmentDate.plusDays(3));
+        if(count>0){
+            return Result.error("您在该时间段三天内已有预约,请选择其他时间");
+        }
         // 设置预约状态为 "已预约"
         appointment.setStatus(AppointmentStatus.booked);
 
