@@ -38,7 +38,7 @@ ws://localhost:8080/chat
 
 
 
-### 消息通知
+### 弹窗通知
 
 #### 路径
 
@@ -83,8 +83,33 @@ ws://localhost:8080/notify
     "msg":"您有新的对话",
     "time":"2025-03-20T08:26:45.3917069"
     "data":{
-    	"sessionId":4   //如果是咨询师求助督导，key为recordId
+    	"sessionId":4,  //用于开启新会话的chat会话id
+    	"observeSessionId":5 //该参数只会在咨询师求助督导时，向督导客户端推送咨询师和来访间的会话id
 	}
+}
+```
+
+
+
+### 监听聊天（督导）
+
+#### 路径
+
+ws://localhost:8080/observe
+
+#### 参数
+
+| Key   | value | description |
+| ----- | ----- | ----------- |
+| token |       | Jwt令牌     |
+
+#### 接收消息格式
+
+```json
+{
+	"msg":"hi",
+	"senderType": false,  //false为来访者发送，true为咨询师发送
+	"time":"2025-03-20T08:26:45.3917069"
 }
 ```
 
