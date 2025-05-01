@@ -19,6 +19,7 @@ public class NotifyServiceImpl implements NotifyService {
     private static final Map<Integer,Session> onlineConsultants = new ConcurrentHashMap<>();
     private static final Map<Integer,Session> onlineSupervisors = new ConcurrentHashMap<>();
     private static final Map<Integer,Session> onlineAdmins = new ConcurrentHashMap<>();
+    private static final Map<Session,Object> sessionLocks = new ConcurrentHashMap<>();
 
     @Override
     public void addSession(int id, String type, Session session) {  //type是指用户类型
@@ -34,22 +35,25 @@ public class NotifyServiceImpl implements NotifyService {
         else if(type.equals(TypeConstant.ADMIN_STR)){
             onlineAdmins.put(id, session);
         }
+        sessionLocks.put(session, new Object());
     }
 
     @Override
     public void removeSession(int id, String type) {
+        Session session=null;
         if(type.equals(TypeConstant.USER_STR)){
-            onlineUsers.remove(id);
+            session = onlineUsers.remove(id);
         }
         else if(type.equals(TypeConstant.CONSULTANT_STR)){
-            onlineConsultants.remove(id);
+            session = onlineConsultants.remove(id);
         }
         else if(type.equals(TypeConstant.SUPERVISOR_STR)){
-            onlineSupervisors.remove(id);
+            session = onlineSupervisors.remove(id);
         }
         else if(type.equals(TypeConstant.ADMIN_STR)){
-            onlineAdmins.remove(id);
+            session = onlineAdmins.remove(id);
         }
+        sessionLocks.remove(session);
     }
 
     @Override
@@ -69,11 +73,17 @@ public class NotifyServiceImpl implements NotifyService {
         }
 
         if(session!=null) {
-            try{
-                session.getBasicRemote().sendText(JSON.toJSONString(msg));
-            }catch(Exception e){
-                log.error("发送消息失败");
+            Object lock = sessionLocks.get(session);
+            if(lock!=null){
+                synchronized (lock){
+                    try{
+                        session.getBasicRemote().sendText(JSON.toJSONString(msg));
+                    }catch(Exception e){
+                        log.error("发送消息失败");
+                    }
+                }
             }
+
         }
     }
 }

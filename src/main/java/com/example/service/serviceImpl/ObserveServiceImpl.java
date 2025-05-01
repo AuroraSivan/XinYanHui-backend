@@ -11,32 +11,40 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @Slf4j
 public class ObserveServiceImpl implements ObserveService {
-    private final static Map<Integer,Session> observedSessions = new ConcurrentHashMap<>();
+    private final static Map<Integer,Session> observerSessions = new ConcurrentHashMap<>();
+    private final static Map<Session,Object> sessionLocks = new ConcurrentHashMap<>();
 
     @Override
     public void addObservedSession(int id, Session session) {
-        observedSessions.put(id, session);
+        observerSessions.put(id, session);
+        sessionLocks.put(session, new Object());
     }
 
     @Override
     public void removeObservedSession(int id) {
-        observedSessions.remove(id);
+        Session session = observerSessions.remove(id);
+        sessionLocks.remove(session);
     }
 
     @Override
     public void sendMessage(int id, String msg) {
-        Session session = observedSessions.get(id);
+        Session session = observerSessions.get(id);
         if (session != null) {
-            try {
-                session.getBasicRemote().sendText(msg);
-            } catch (Exception e) {
-                log.error("[SEND] sessionId={}, session={}, message={}", id, session.getId(), msg);
+            Object lock = sessionLocks.get(session);
+            if(lock!=null){
+                synchronized (lock){
+                    try {
+                        session.getBasicRemote().sendText(msg);
+                    } catch (Exception e) {
+                        log.error("[SEND] sessionId={}, session={}, message={}", id, session.getId(), msg);
+                    }
+                }
             }
         }
     }
 
     @Override
     public boolean isObserved(int id) {
-        return observedSessions.containsKey(id);
+        return observerSessions.containsKey(id);
     }
 }
