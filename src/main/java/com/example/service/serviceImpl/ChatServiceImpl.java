@@ -72,25 +72,32 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void addSession(String sessionId, int id, String userType, int sessionType, Session session) {
+        String username =null;
+        boolean isStart = false;
         if(userType.equals("user")){
             onlineUsers.put(sessionId, session);
+            username = "来访者 "+userDao.findNameById(id);
             if(onlineConsultants.containsKey(0+":"+sessionId)){
                 //修改数据库中的session状态和开启时间
+                isStart = true;
                 activeSession(sessionId);
             }
         }
         else if(userType.equals("supervisor")){
             onlineSupervisors.put(sessionId, session);
+            username = "督导 "+supervisorDao.getNameById(id);
             //放入redis
             redisTemplate.opsForSet().add("chat:sessionSet:supervisor:"+id, sessionId);  //咨询师对话列表
             redisTemplate.expire("chat:sessionSet:supervisor:"+id, ChatConstant.SESSION_TIMEOUT, TimeUnit.SECONDS);
             if(onlineConsultants.containsKey(1+":"+sessionId)){
                 //修改数据库中的session状态和开启时间
                 responseSupervise(sessionId);
+                isStart = true;
             }
         }
         else if(userType.equals("consultant")){
             onlineConsultants.put(sessionType+":"+sessionId, session);
+            username = "咨询师 "+consultantDao.getNameById(id);
             //放入redis
             redisTemplate.opsForSet().add("chat:sessionSet:consultant:"+id+":"+sessionType, sessionId);   //咨询师对话set
             redisTemplate.expire("chat:sessionSet:consultant:"+id+":"+sessionType, ChatConstant.SESSION_TIMEOUT, TimeUnit.SECONDS);
@@ -98,6 +105,7 @@ public class ChatServiceImpl implements ChatService {
             if(sessionType==0 && onlineUsers.containsKey(sessionId)){
                 //修改数据库中的session状态和开启时间
                 activeSession(sessionId);
+                isStart = true;
             }
             else if(sessionType==1){
                 //修改数据库中的session状态和开启时间
@@ -105,19 +113,15 @@ public class ChatServiceImpl implements ChatService {
             }
         }
         //向对话中传递系统消息，该用户上线
-        String username =null;
-        if(userType.equals("user")){
-            username = "来访者 "+userDao.findNameById(id);
-        }
-        else if(userType.equals("supervisor")){
-            username = "督导 "+supervisorDao.getNameById(id);
-        }
-        else if(userType.equals("consultant")){
-            username = "咨询师 "+consultantDao.getNameById(id);
-        }
+
         String message = WsChatMsgUtil.getWsChatMsgJson(true, username+"已进入会话", LocalDateTime.now());
         try {
             broadcast(sessionId, sessionType, message);
+            if(isStart){
+                //向对话中传递系统消息，该用户已开始咨询
+                message = WsChatMsgUtil.getWsChatMsgJson(true, "会话已开始", LocalDateTime.now());
+                broadcast(sessionId, sessionType, message);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

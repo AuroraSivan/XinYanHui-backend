@@ -49,7 +49,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         int count = appointmentRepository.countAppointmentsByDateRange(appointment.getUserId(),appointmentDate.minusDays(3),appointmentDate.plusDays(3));
         if(count>0){
-            return Result.error("您在该时间段三天内已有预约,请选择其他时间");
+            return Result.error("两次预约时间段间隔需在三天内,您在该时间段已有预约，请选择其他时间");
         }
         // 设置预约状态为 "已预约"
         appointment.setStatus(AppointmentStatus.booked);

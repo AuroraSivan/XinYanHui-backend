@@ -59,7 +59,7 @@ public class SessionRecordServiceImpl implements SessionRecordService {
         //检查用户三天内是否有预约
         int count =appointmentRepository.countAppointmentsByDateRange(userId,LocalDate.now().minusDays(3),LocalDate.now().plusDays(3));
         if(count>0){
-            return Result.error("三天内已有预约,当前无法开启新会话");
+            return Result.error("三天内已有预约或进行过咨询,当前无法开启新会话");
         }
         //封装会话信息，并存入数据库
         ConsultationSession cs = new ConsultationSession();
