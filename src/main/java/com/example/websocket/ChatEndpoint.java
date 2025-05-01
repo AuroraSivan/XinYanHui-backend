@@ -42,7 +42,7 @@ public class ChatEndpoint {
 
         // 从 token 参数中获取用户名
 
-            Map<String, Object> params = JwtUtil.parseJwt(token);
+        Map<String, Object> params = JwtUtil.parseJwt(token);
         this.Id = (Integer) params.get("id");
         this.userType = (String) params.get("type");
         this.sessionId = (String) config.getUserProperties().get("sessionId");
@@ -52,7 +52,7 @@ public class ChatEndpoint {
             session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Username is required"));
             return;
         }
-        log.info("[OPEN] 新连接 sessionId={}, userId={}", sessionId, Id);
+        log.info("[OPEN] 新连接 logicSessionId={}, userId={},sessionId={}", sessionId, Id,session.getId());
         chatService.addSession(sessionId, Id, userType, sessionType, session);
     }
 

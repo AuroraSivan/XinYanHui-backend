@@ -25,7 +25,7 @@ public class GlobalCorsConfig {
                 .csrf(csrf -> csrf.disable()) // 关闭 CSRF，防止拦截 POST 请求
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 允许跨域
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/user/**", "/appointments/**","/internal/**","/chat/**","/notify/**").permitAll() // 允许访问预约相关接口
+                        .requestMatchers("/user/**", "/appointments/**","/internal/**","/chat/**","/notify/**","/observe/**").permitAll() // 允许访问预约相关接口
                         .anyRequest().authenticated() // 其他接口需要认证
                 );
 

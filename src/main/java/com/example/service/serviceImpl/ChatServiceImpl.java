@@ -8,6 +8,7 @@ import com.example.pojo.ConsultationSession;
 import com.example.pojo.SupervisorConsultation;
 import com.example.repository.*;
 import com.example.service.ChatService;
+import com.example.service.ObserveService;
 import com.example.utils.WsChatMsgUtil;
 import jakarta.websocket.Session;
 import lombok.extern.slf4j.Slf4j;
@@ -37,13 +38,15 @@ public class ChatServiceImpl implements ChatService {
     private SupervisorDao supervisorDao;
     private UserDao userDao;
     private ConsultantDao consultantDao;
+    private final ObserveService observeService;
 
     @Autowired
-    public ChatServiceImpl(StringRedisTemplate redisTemplate,ConsultationSessionDao consultationSessionDao,
-                           SupervisorConsultationDao supervisorConsultationDao) {
+    public ChatServiceImpl(StringRedisTemplate redisTemplate, ConsultationSessionDao consultationSessionDao,
+                           SupervisorConsultationDao supervisorConsultationDao, ObserveService observeService) {
         this.consultationSessionDao = consultationSessionDao;
         this.redisTemplate = redisTemplate;
         this.supervisorConsultationDao = supervisorConsultationDao;
+        this.observeService = observeService;
     }
 
     @Autowired
@@ -183,8 +186,11 @@ public class ChatServiceImpl implements ChatService {
         String msg = WsChatMsgUtil.getWsChatMsgJson(false, message, time);
         try{
             session.getBasicRemote().sendText(msg);
+            if(sessionType==ChatConstant.CONSULTANTION_TYPE && observeService.isObserved(Integer.parseInt(sessionId))){
+                observeService.sendMessage(Integer.parseInt(sessionId), JSON.toJSONString(chatMsg));
+            }
         }catch (IOException e) {
-            e.printStackTrace();
+            log.error("出现IO异常，消息发送失败");
         }
     }
 

@@ -31,11 +31,11 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry){
         registry.addInterceptor(loginCheckInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/user/login","/user/register","/internal/login/*","/chat/**","/notify/**");
+                .excludePathPatterns("/user/login","/user/register","/internal/login/*","/chat/**","/notify/**","/observe/**");
 
         registry.addInterceptor(userCheckInterceptor)
                 .addPathPatterns("/user/**")
-                .excludePathPatterns("/user/login","/user/register","/chat/**","/notify/**");
+                .excludePathPatterns("/user/login","/user/register","/chat/**","/notify/**","/observe/**");
 
         registry.addInterceptor(adminCheckInterceptor)
                 .addPathPatterns("/internal/admin/*");
@@ -48,6 +48,6 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(internalCheckInterceptor)
                 .addPathPatterns("/internal/**")
-                .excludePathPatterns("/internal/login/*","/chat/**","/notify/**");
+                .excludePathPatterns("/internal/login/*","/chat/**","/notify/**","/observe/**");
     }
 }
