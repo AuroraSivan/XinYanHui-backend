@@ -39,4 +39,12 @@
         AND cs.available_date=cd.available_date
         WHERE cs.consultant_id=#{id} AND start_time=13
     </select>
+
+    <select id="getAllConsultants" resultType="com.example.pojo.Consultant">
+        SELECT consultant_id,name,professional_info
+        FROM Consultants
+        <if test ="supervisorId!=null">
+            WHERE supervisor_id=#{supervisorId}
+        </if>
+    </select>
 </mapper>

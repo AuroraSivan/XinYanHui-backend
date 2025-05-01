@@ -24,14 +24,15 @@ public class AdminController {
     @PostMapping("/consultant")
     public Result<Consultant> addConsultant(@RequestParam(name="username") String name,
                                 @RequestParam(required = false) String professionalInfo,
-                                @RequestParam String password) {
-        if(name==null || password==null || name.isEmpty() || password.isEmpty()){
+                                @RequestParam String password, @RequestParam Integer supervisorId) {
+        if(name==null || password==null || name.isEmpty() || password.isEmpty() || supervisorId==null){
             return Result.error("参数错误");
         }
         Consultant consultant = new Consultant();
         consultant.setName(name);
         consultant.setProfessionalInfo(professionalInfo);
         consultant.setPassword(password);
+        consultant.setSupervisorId(supervisorId);
         return adminService.addConsultantService(consultant);
     }
 

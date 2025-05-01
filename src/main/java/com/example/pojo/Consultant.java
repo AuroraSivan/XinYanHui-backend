@@ -18,6 +18,7 @@ public class Consultant {
     private String password;
     private String salt;
     private String token;
+    private Integer supervisorId;
 
     public Consultant() {
         // Default constructor

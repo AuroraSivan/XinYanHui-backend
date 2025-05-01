@@ -45,8 +45,8 @@ public class ViewServiceImpl implements ViewService {
 
     // admin查看所有consultant列表
     @Override
-    public Result<List<Consultant>> getAllConsultants() {
-        return Result.success(consultantDao.getAllConsultants());
+    public Result<List<Consultant>> getAllConsultants(Integer supervisorId) {
+        return Result.success(consultantDao.getAllConsultants(supervisorId));
     }
 
     // admin查看所有supervisor列表

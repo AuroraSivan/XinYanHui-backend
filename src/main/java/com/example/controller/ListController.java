@@ -32,8 +32,8 @@ public class ListController {
 
     // Admin查看所有consultant列表
     @GetMapping("/admin/all-consultants")
-    public Result<List<Consultant>> getAllConsultants() {
-        return scheduleService.getAllConsultants();
+    public Result<List<Consultant>> getAllConsultants(@RequestParam(required = false) Integer supervisorId) {
+        return scheduleService.getAllConsultants(supervisorId);
     }
 
     // Admin查看所有supervisor列表

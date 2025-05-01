@@ -16,7 +16,7 @@ public interface ViewService {
     Result<List<SupervisorSchedule>> getSupervisorSchedule(Integer supervisorId);
 
     // admin查看所有consultant列表
-    Result<List<Consultant>> getAllConsultants();
+    Result<List<Consultant>> getAllConsultants(Integer supervisorId);
 
     // admin查看所有supervisor列表
     Result<List<Supervisor>> getAllSupervisors();

@@ -17,11 +17,10 @@ public interface ConsultantDao  {
     @Select("select salt from Consultants where consultant_id=#{Id}")
     String getSaltById(Integer Id);     //通过id查询盐
 
-    @Select("insert into Consultants(consultant_id,name,professional_info,password_HashwithSalt,salt) values(#{consultantId},#{name},#{professionalInfo},#{password},#{salt})")
+    @Select("insert into Consultants(consultant_id,name,professional_info,password_HashwithSalt,salt,supervisor_id) values(#{consultantId},#{name},#{professionalInfo},#{password},#{salt},#{supervisorId})")
     void addConsultant(Consultant consultant);
 
-    @Select("select consultant_id,name,professional_info from Consultants")
-    List<Consultant> getAllConsultants();
+    List<Consultant> getAllConsultants(Integer SupervisorId);
 
     @Select("select name from Consultants where consultant_id=#{id}")
     String getNameById(Integer id);
