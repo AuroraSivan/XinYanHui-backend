@@ -47,8 +47,18 @@ public class ChatController {
         return sessionRecordService.newRecord(consultantId,sessionId);
     }
 
-    @GetMapping("/internal/supervisor/chat/history")
+    @GetMapping("/internal/session/history")
     public Result<List<ChatMsg>> getChatHistory(@RequestParam Integer sessionId){
         return chatLogService.getSessionLog(sessionId);
+    }
+
+    @GetMapping("/user/session/history")
+    public Result<List<ChatMsg>> getChatHistoryByUser(@RequestParam Integer sessionId){
+        return chatLogService.getSessionLog(sessionId);
+    }
+
+    @GetMapping("/internal/supervise/history")
+    public Result<List<ChatMsg>> getSuperviseHistory(@RequestParam Integer recordId){
+        return chatLogService.getRecordLog(recordId);
     }
 }
