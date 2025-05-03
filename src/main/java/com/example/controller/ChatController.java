@@ -1,14 +1,13 @@
 package com.example.controller;
 
 import com.example.pojo.ChatMsg;
+import com.example.pojo.ConsultationSession;
+import com.example.pojo.SupervisorConsultation;
 import com.example.service.ChatLogService;
 import com.example.service.SessionRecordService;
 import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -61,4 +60,46 @@ public class ChatController {
     public Result<List<ChatMsg>> getSuperviseHistory(@RequestParam Integer recordId){
         return chatLogService.getRecordLog(recordId);
     }
+
+    @PutMapping("/user/session/evaluate")
+    public Result<ConsultationSession> evaluate(@RequestBody Map<String,Object> params){
+        Integer sessionId = (Integer)params.get("sessionId");
+        Integer rate = (Integer)params.get("rate");
+        String feedback = (String)params.get("feedback");
+        if(sessionId == null || rate == null || feedback == null){
+            return Result.error("2","请求参数错误！");
+        }
+        return sessionRecordService.evaluate(sessionId,  rate, feedback);
+    }
+
+    @GetMapping("/user/consultant/evaluation")
+    public Result<Map<String,Object>> getEvaluationOfConsultant(@RequestParam Integer consultantId){
+        return sessionRecordService.getEvaluationOfConsultant(consultantId);
+    }
+
+    @GetMapping("/user/session/list")
+    public Result<List<ConsultationSession>> getSessionsByUserId(@RequestParam Integer userId){
+        return sessionRecordService.getSessionsByUserId(userId);
+    }
+
+    @GetMapping("/internal/session/list")
+    public Result<List<ConsultationSession>> getSessionsByConsultantId(@RequestParam Integer consultantId){
+        return sessionRecordService.getSessionsByConsultantId(consultantId);
+    }
+
+    @GetMapping("/internal/evaluation")
+    public Result<Map<String,Object>> getEvaluationOfConsultantByInternal(@RequestParam Integer consultantId){
+        return sessionRecordService.getEvaluationOfConsultant(consultantId);
+    }
+
+    @GetMapping("/internal/supervise/list/consultant")
+    public Result<List<SupervisorConsultation>> getRecordsByConsultantId(@RequestParam Integer consultantId){
+        return sessionRecordService.getRecordsByConsultantId(consultantId);
+    }
+
+    @GetMapping("/internal/supervise/list/supervisor")
+    public Result<List<SupervisorConsultation>> getRecordsBySupervisorId(@RequestParam Integer supervisorId){
+        return sessionRecordService.getRecordsBySupervisorId(supervisorId);
+    }
+
 }

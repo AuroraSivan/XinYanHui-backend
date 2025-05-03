@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -107,5 +108,79 @@ public class SessionRecordServiceImpl implements SessionRecordService {
             return Result.success(map);
         }
         return Result.error("创建督导会话失败");
+    }
+
+    @Override
+    public Result<ConsultationSession> evaluate(int sessionId, int rating, String feedback) {
+        ConsultationSession cs = new ConsultationSession();
+        cs.setSessionId(sessionId);
+        cs.setRating(rating);
+        cs.setFeedback(feedback);
+        if(consultationSessionDao.updateById(cs)==1){
+            return Result.success(cs);
+        }
+        return Result.error("评价失败");
+    }
+
+    @Override
+    public Result<List<ConsultationSession>> getSessionsByConsultantId(int consultantId) {
+        QueryWrapper<ConsultationSession> query = new QueryWrapper<>();
+        query.eq("consultant_id", consultantId).eq("session_status", ConSessionStatus.COMPLETED);
+        List<ConsultationSession> list = consultationSessionDao.selectList(query);
+        if(list==null){
+            return Result.error("未找到会话");
+        }
+        return Result.success(list);
+    }
+
+    @Override
+    public Result<List<ConsultationSession>> getSessionsByUserId(int userId) {
+        QueryWrapper<ConsultationSession> query = new QueryWrapper<>();
+        query.eq("user_id", userId).eq("session_status", ConSessionStatus.COMPLETED);
+        List<ConsultationSession> list = consultationSessionDao.selectList(query);
+        if(list==null){
+            return Result.error("未找到会话");
+        }
+        return Result.success(list);
+    }
+
+
+    @Override
+    public Result<Map<String, Object>> getEvaluationOfConsultant(int consultantId) {
+        Map<String, Object> map = new HashMap<>();
+        QueryWrapper<ConsultationSession> query = new QueryWrapper<>();
+        query.eq("consultant_id", consultantId)
+                .eq("session_status", ConSessionStatus.COMPLETED)
+                .isNotNull("rating");
+        List<ConsultationSession> list = consultationSessionDao.selectList(query);
+        if (list == null) {
+            return Result.error("未找到会话");
+        }
+        int averageRating = list.stream().mapToInt(ConsultationSession::getRating).sum() / list.size();
+        map.put("averageRate", averageRating);
+        map.put("sessionList", list);
+        return Result.success(map);
+    }
+
+    @Override
+    public Result<List<SupervisorConsultation>> getRecordsByConsultantId(int consultantId) {
+        QueryWrapper<SupervisorConsultation> query = new QueryWrapper<>();
+        query.eq("consultant_id", consultantId);
+        List<SupervisorConsultation> list = supervisorConsultationDao.selectList(query);
+        if (list == null) {
+            return Result.error("未找到会话");
+        }
+        return Result.success(list);
+    }
+
+    @Override
+    public Result<List<SupervisorConsultation>> getRecordsBySupervisorId(int supervisorId) {
+        QueryWrapper<SupervisorConsultation> query = new QueryWrapper<>();
+        query.eq("supervisor_id", supervisorId);
+        List<SupervisorConsultation> list = supervisorConsultationDao.selectList(query);
+        if (list == null) {
+            return Result.error("未找到会话");
+        }
+        return Result.success(list);
     }
 }

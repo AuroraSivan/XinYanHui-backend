@@ -1,6 +1,9 @@
 package com.example.pojo;
 
 public enum ConSessionStatus {
+    active("active"),
+    completed("completed"),
+    ready("ready"),
     ACTIVE("active"),
     COMPLETED("completed"),
     READY("ready");

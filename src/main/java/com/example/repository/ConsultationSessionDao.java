@@ -10,4 +10,5 @@ public interface ConsultationSessionDao extends BaseMapper<ConsultationSession> 
 
     @Select("select session_id from ConsultationSessions where appointment_id=#{appointmentId}")
     Integer findIdByAppointmentId(Integer appointmentId);
+
 }
