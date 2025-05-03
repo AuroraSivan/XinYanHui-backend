@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ConsultantDao  {
@@ -43,4 +44,6 @@ public interface ConsultantDao  {
 
     @Select("select supervisor_id from Consultants where consultant_id=#{id}")
     Integer findSupervisorIdById(Integer id);
+
+    List<Map<String,Object>> getConsultantWeeklyTime();
 }

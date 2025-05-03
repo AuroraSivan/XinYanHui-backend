@@ -47,4 +47,17 @@
             WHERE supervisor_id=#{supervisorId}
         </if>
     </select>
+
+    <select id="getConsultantWeeklyTime" resultType="map">
+        SELECT cs.consultant_id,c.name,
+        SUM(CASE WHEN cs.session_status='completed'
+        THEN TIMESTAMPDIFF(MINUTE, cs.start_time, cs.end_time)
+        ELSE 0 END) AS total_time
+        FROM ConsultationSessions cs INNER JOIN Consultants c
+        ON cs.consultant_id=c.consultant_id
+        WHERE start_time
+        BETWEEN DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01') AND LAST_DAY(CURRENT_DATE())
+        GROUP BY c.consultant_id
+        ORDER BY total_time DESC
+    </select>
 </mapper>
