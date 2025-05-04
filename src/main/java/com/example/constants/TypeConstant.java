@@ -9,4 +9,8 @@ public class TypeConstant {
     public static final String CONSULTANT_STR="consultant";
     public static final String SUPERVISOR_STR="supervisor";
     public static final String ADMIN_STR="admin";
+    public static final String USER_STR2="User";
+    public static final String CONSULTANT_STR2="Consultant";
+    public static final String SUPERVISOR_STR2="Supervisor";
+    public static final String ADMIN_STR2="Admin";
 }
