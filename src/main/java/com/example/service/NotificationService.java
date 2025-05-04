@@ -11,4 +11,6 @@ public interface NotificationService {
     Result<Notification> readNotification(Integer id);
     Result<Notification> deleteNotification(Integer id);
     boolean sendNotification(Integer recId,String recRole,String content);
+    void sendNotification(Integer recId,String recRole,String[] content);
+    void sendAdminNotification(String[] content);
 }

@@ -33,4 +33,7 @@ public interface ConsultantSchedulesRepository {
 
     @Select("SELECT * FROM SupervisorSchedules WHERE supervisor_id = #{supervisorId}")
     List<SupervisorSchedule> getSupervisorScheduleById(Integer supervisorId);
+
+    @Select("SELECT * FROM ConsultantSchedules WHERE schedule_id = #{scheduleId}")
+    ConsultantSchedule getConsultantScheduleByScheduleId(Integer scheduleId);
 }

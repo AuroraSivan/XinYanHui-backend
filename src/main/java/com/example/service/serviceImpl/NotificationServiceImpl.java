@@ -3,8 +3,11 @@ package com.example.service.serviceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.pojo.Notification;
 import com.example.pojo.NotificationStatus;
+import com.example.pojo.NotifyMsg;
+import com.example.repository.AdminDao;
 import com.example.repository.NotificationDao;
 import com.example.service.NotificationService;
+import com.example.service.NotifyService;
 import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,14 +15,27 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.constants.TypeConstant;
+
 @Service
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationDao notificationDao;
+    private NotifyService notifyService;
+    private AdminDao adminDao;
 
     @Autowired
-    public NotificationServiceImpl(NotificationDao notificationDao)
-    {
-        this.notificationDao=notificationDao;
+    public NotificationServiceImpl(NotificationDao notificationDao) {
+        this.notificationDao = notificationDao;
+    }
+
+    @Autowired
+    public void setNotifyService(NotifyService notifyService) {
+        this.notifyService = notifyService;
+    }
+
+    @Autowired
+    public void setAdminDao(AdminDao adminDao) {
+        this.adminDao = adminDao;
     }
 
     @Override
@@ -39,7 +55,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .orderByDesc("create_time")
                 .eq("status", NotificationStatus.New)
                 .or()
-                .eq("status",  NotificationStatus.Read);
+                .eq("status", NotificationStatus.Read);
         return Result.success(notificationDao.selectList(query));
     }
 
@@ -52,7 +68,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (row == 1) {
             return Result.success(notificationDao.selectById(id));
         } else {
-            return Result.error( "更新失败");
+            return Result.error("更新失败");
         }
     }
 
@@ -65,7 +81,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (row == 1) {
             return Result.success(notf);
         } else {
-            return Result.error( "删除失败");
+            return Result.error("删除失败");
         }
     }
 
@@ -79,4 +95,35 @@ public class NotificationServiceImpl implements NotificationService {
         notf.setCreateTime(LocalDateTime.now());
         return notificationDao.insert(notf) == 1;
     }
+
+    @Override
+    public void sendNotification(Integer recId, String recRole, String[] content) {
+        NotifyMsg msg1 = NotifyMsg.getNormalMsg(content[0]);
+        int type = 0;
+        switch (recRole) {
+            case TypeConstant.USER_STR2:
+                type = TypeConstant.USER_INT;
+                break;
+            case TypeConstant.CONSULTANT_STR2:
+                type = TypeConstant.CONSULTANT_INT;
+                break;
+            case TypeConstant.SUPERVISOR_STR2:
+                type = TypeConstant.SUPERVISOR_INT;
+                break;
+            case TypeConstant.ADMIN_STR2:
+                type = TypeConstant.ADMIN_INT;
+                break;
+        }
+        notifyService.sendMessage(recId, type, msg1);
+        sendNotification(recId, recRole, content[1]);
+    }
+
+    @Override
+    public void sendAdminNotification(String[] content) {
+        List<Integer> ids = adminDao.getAllIds();
+        for (Integer id : ids) {
+            sendNotification(id, TypeConstant.ADMIN_STR2, content);
+        }
+    }
+
 }

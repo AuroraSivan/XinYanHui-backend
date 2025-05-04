@@ -44,4 +44,10 @@ public interface AppointmentRepository {
 
     @Select("SELECT COUNT(*) FROM Appointments WHERE user_id = #{userId} AND appointment_date >= #{start} AND appointment_date <= #{end} AND(status='booked' OR status ='completed')" )
     int countAppointmentsByDateRange(Integer userId,LocalDate start, LocalDate end);
+
+    @Select("SELECT * FROM Appointments WHERE appointment_id = #{appointmentId}")
+    Appointment findById(Integer appointmentId);
+
+    @Select("SELECT * FROM Appointments WHERE consultant_id = #{id} AND appointment_date = #{date} AND appointment_time >= #{start} AND appointment_time <= #{end}")
+    List<Appointment> findByConsultantSchedule(Integer id,  LocalDate date,LocalTime start, LocalTime end);
 }

@@ -1,9 +1,14 @@
 package com.example.service.serviceImpl;
 
+import com.example.constants.TypeConstant;
 import com.example.pojo.Appointment;
 import com.example.pojo.AppointmentStatus;
 import com.example.repository.AppointmentRepository;
+import com.example.repository.ConsultantDao;
+import com.example.repository.UserDao;
 import com.example.service.AppointmentService;
+import com.example.service.NotificationService;
+import com.example.utils.NotifyContentUtil;
 import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,7 +17,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +27,12 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Autowired
     private AppointmentRepository appointmentRepository;
+    @Autowired
+    private NotificationService notificationService;
+    @Autowired
+    private ConsultantDao  consultantDao;
+    @Autowired
+    private UserDao userDao;
 
     // 预约咨询
     public Result<Appointment> bookAppointment(Appointment appointment) {
@@ -64,6 +77,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         // 保存预约信息
         appointmentRepository.save(appointment);
 
+        // 发送预约通知
+        Map<String, Object> map = new HashMap<>();
+        map.put("用户", userDao.findNameById(appointment.getUserId()));
+        map.put("咨询师", consultantDao.getNameById(appointment.getConsultantId()));
+        map.put("时间", appointment.getAppointmentDate() + " " + appointment.getAppointmentTime());
+        String []content1 = NotifyContentUtil.bookNotificationOfUser(map);
+        notificationService.sendNotification(appointment.getUserId(), TypeConstant.USER_STR2, content1);
+        String []content2 = NotifyContentUtil.bookNotificationOfConsultant(map);
+        notificationService.sendNotification(appointment.getConsultantId(), TypeConstant.CONSULTANT_STR2, content2);
         return Result.success(appointment);
     }
 
@@ -122,12 +144,21 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Result cancelAppointment(Integer appointmentId, String reason) {
         // 直接尝试更新状态
         int rowsUpdated = appointmentRepository.cancelAppointment(appointmentId, reason);
-
         // 如果更新失败（没有符合条件的记录）
         if (rowsUpdated == 0) {
             return Result.error("预约不存在或状态无法取消");
         }
 
+        Appointment appointment = appointmentRepository.findById(appointmentId);
+        // 发送取消通知
+        Map<String, Object> map = new HashMap<>();
+        map.put("用户", userDao.findNameById(appointment.getUserId()));
+        map.put("咨询师", consultantDao.getNameById(appointment.getConsultantId()));
+        map.put("时间", appointment.getAppointmentDate() + " " + appointment.getAppointmentTime());
+        String []content1 = NotifyContentUtil.cancelNotificationOfUser(map);
+        notificationService.sendNotification(appointment.getUserId(), TypeConstant.USER_STR2, content1);
+        String []content2 = NotifyContentUtil.cancelNotificationOfConsultant(map);
+        notificationService.sendNotification(appointment.getConsultantId(), TypeConstant.CONSULTANT_STR2, content2);
         // 更新成功
         return Result.success("预约已成功取消");
     }

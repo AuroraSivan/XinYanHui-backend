@@ -8,13 +8,18 @@ import com.example.repository.UserDao;
 import com.example.service.AdminService;
 import com.example.service.ConsultantService;
 import com.example.service.SupervisorService;
+import com.example.utils.NotifyContentUtil;
 import com.example.utils.PasswordHashWithSalt;
 import com.example.utils.Result;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class XinYanHuiApplicationTests {
     @Autowired
     private AdminDao adminDao;
@@ -63,6 +68,38 @@ class XinYanHuiApplicationTests {
     public void testLoginAsConsultant() {
         Result<Consultant> result = consultantService.loginService(1, "a12345");
         System.out.println(result);
+    }
+
+    @Test
+    public void testContentUtil(){
+        Map<String,Object> map = new HashMap<>();
+        map.put("name","张三");
+        map.put("time", LocalDateTime.now());
+        String[] str = NotifyContentUtil.bookNotificationOfUser(map);
+        System.out.println(str[0]);
+        System.out.println(str[1]);
+        str = NotifyContentUtil.bookNotificationOfConsultant(map);
+        System.out.println(str[0]);
+        System.out.println(str[1]);
+        str = NotifyContentUtil.cancelNotificationOfUser(map);
+        System.out.println(str[0]);
+        System.out.println(str[1]);
+        str = NotifyContentUtil.cancelNotificationOfConsultant(map);
+        System.out.println(str[0]);
+        System.out.println(str[1]);
+        str = NotifyContentUtil.approveNotificationOfConsultant(map);
+        System.out.println(str[0]);
+        System.out.println(str[1]);
+        str = NotifyContentUtil.approveNotificationOfUser(map);
+        System.out.println(str[0]);
+        System.out.println(str[1]);
+        str = NotifyContentUtil.rejectNotificationOfConsultant(map);
+        System.out.println(str[0]);
+        System.out.println(str[1]);
+        str = NotifyContentUtil.requestNotificationOfAdmin(map);
+        System.out.println(str[0]);
+        System.out.println(str[1]);
+
     }
 
 }
