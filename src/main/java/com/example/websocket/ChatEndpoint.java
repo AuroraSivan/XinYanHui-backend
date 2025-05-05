@@ -62,8 +62,11 @@ public class ChatEndpoint {
     }
 
     @OnClose
-    public void onClose() {
+    public void onClose(CloseReason reason) {
         log.info("[CLOSE] 连接关闭 sessionId={}, userId={}", sessionId, Id);
+        if(reason.getCloseCode()== CloseReason.CloseCodes.CANNOT_ACCEPT){
+            return ;
+        }
         chatService.removeSession(sessionId, Id, userType, sessionType);
     }
 

@@ -7,4 +7,5 @@ public interface ObserveService {
     void removeObservedSession(int id);
     void sendMessage(int id, String msg);
     boolean isObserved(int id);
+    void observedSessionClosed(int id);
 }

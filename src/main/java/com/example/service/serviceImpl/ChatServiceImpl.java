@@ -1,6 +1,7 @@
 package com.example.service.serviceImpl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.constants.ChatConstant;
 import com.example.pojo.ChatMsg;
 import com.example.pojo.ConSessionStatus;
@@ -10,6 +11,7 @@ import com.example.repository.*;
 import com.example.service.ChatService;
 import com.example.service.ObserveService;
 import com.example.utils.WsChatMsgUtil;
+import jakarta.websocket.CloseReason;
 import jakarta.websocket.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,9 @@ public class ChatServiceImpl implements ChatService {
     private UserDao userDao;
     private ConsultantDao consultantDao;
     private final ObserveService observeService;
+
+    private String COMPLETED_SESSION_KEY = "chat:session:completed:0";
+    private String COMPLETED_SUPERVISOR_KEY = "chat:session:completed:1";
 
     @Autowired
     public ChatServiceImpl(StringRedisTemplate redisTemplate, ConsultationSessionDao consultationSessionDao,
@@ -72,6 +77,15 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void addSession(String sessionId, int id, String userType, int sessionType, Session session) {
+        //判断是否是已完成的会话,是则关闭session
+        if( (sessionType==0 && isSessionCompleted(sessionId)) || (sessionType==1 && isSupervisorCompleted(sessionId))){
+            try {
+                session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Session is completed"));
+            } catch (Exception e) {
+                log.error("Error closing session,exception:{}",e.getMessage());
+            }
+            return ;
+        }
         String username =null;
         boolean isStart = false;
         if(userType.equals("user")){
@@ -130,15 +144,21 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void removeSession(String sessionId, int id, String userType, int sessionType) {
-
+        Session session=null;     //用于获取会话中另一方的session
         if(userType.equals("user")){
             onlineUsers.remove(sessionId);
             //修改数据库中的session状态和结束时间
             inactiveSession(sessionId);
+            if(onlineConsultants.containsKey(ChatConstant.CONSULTANTION_TYPE+":"+sessionId)){
+                session = onlineConsultants.get(ChatConstant.CONSULTANTION_TYPE+":"+sessionId);
+            }
         }
         else if(userType.equals("supervisor")){
             onlineSupervisors.remove(sessionId);
             redisTemplate.opsForSet().remove("chat:sessionSet:supervisor:"+id, sessionId);
+            if(onlineConsultants.containsKey(ChatConstant.SUPERVISE_TYPE+":"+sessionId)){
+                session = onlineConsultants.get(ChatConstant.SUPERVISE_TYPE+":"+sessionId);
+            }
         }
         else if(userType.equals("consultant")){
             onlineConsultants.remove(sessionType+":"+sessionId);
@@ -147,15 +167,27 @@ public class ChatServiceImpl implements ChatService {
             //修改数据库中的session状态和结束时间
             if(sessionType==0){
                 inactiveSession(sessionId);
+                if(onlineUsers.containsKey(sessionId)){
+                    session = onlineUsers.get(sessionId);
+                }
+            }
+            else{
+                if(onlineSupervisors.containsKey(sessionId)){
+                    session = onlineSupervisors.get(sessionId);
+                }
             }
         }
         //向对话中传递系统消息,对话结束
         String message = WsChatMsgUtil.getWsChatMsgJson(true, "会话已结束", LocalDateTime.now());
         try {
-            broadcast(sessionId, sessionType, message);
+            if(session!=null){
+                broadcast(sessionId, sessionType, message);
+                session.close();    //另一方的会话也要关闭
+            }
         } catch (IOException e) {
             log.info("出现IO异常");
         }
+        observeService.observedSessionClosed(Integer.parseInt(sessionId));
         //对聊天记录进行持久化操作
         try{
             saveChatLog(sessionId, sessionType);
@@ -285,5 +317,39 @@ public class ChatServiceImpl implements ChatService {
             }
         }
         redisTemplate.delete(key);
+    }
+
+    @Transactional
+    protected boolean isSessionCompleted(String sessionId){
+        if( redisTemplate.hasKey(COMPLETED_SESSION_KEY) && redisTemplate.opsForSet().isMember(COMPLETED_SESSION_KEY, sessionId)){
+            redisTemplate.expire(COMPLETED_SESSION_KEY, ChatConstant.SESSION_TIMEOUT, TimeUnit.SECONDS);
+            return true;
+        }
+        QueryWrapper<ConsultationSession> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("session_id", Integer.parseInt(sessionId));
+        ConsultationSession cs =consultationSessionDao.selectOne(queryWrapper);
+        if(cs==null || cs.getSessionStatus()==ConSessionStatus.completed || cs.getSessionStatus()==ConSessionStatus.COMPLETED) {
+            redisTemplate.opsForSet().add(COMPLETED_SESSION_KEY, sessionId);
+            redisTemplate.expire(COMPLETED_SESSION_KEY, ChatConstant.SESSION_TIMEOUT, TimeUnit.SECONDS);
+            return true;
+        }
+        return false;
+    }
+
+    @Transactional
+    protected boolean isSupervisorCompleted(String sessionId){
+        if( redisTemplate.hasKey(COMPLETED_SUPERVISOR_KEY) && redisTemplate.opsForSet().isMember(COMPLETED_SUPERVISOR_KEY, sessionId)){
+            redisTemplate.expire(COMPLETED_SUPERVISOR_KEY, ChatConstant.SESSION_TIMEOUT, TimeUnit.SECONDS);
+            return true;
+        }
+        QueryWrapper<SupervisorConsultation> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("record_id", Integer.parseInt(sessionId));
+        SupervisorConsultation sc = supervisorConsultationDao.selectOne(queryWrapper);
+        if(sc==null || sc.getResponseTime()!=null) {
+            redisTemplate.opsForSet().add(COMPLETED_SUPERVISOR_KEY, sessionId);
+            redisTemplate.expire(COMPLETED_SUPERVISOR_KEY, ChatConstant.SESSION_TIMEOUT, TimeUnit.SECONDS);
+            return true;
+        }
+        return false;
     }
 }
