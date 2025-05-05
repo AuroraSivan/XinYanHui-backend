@@ -52,10 +52,10 @@ public class NotificationServiceImpl implements NotificationService {
         QueryWrapper<Notification> query = new QueryWrapper<>();
         query.eq("rec_id", Id)
                 .eq("rec_role", role)
-                .orderByDesc("create_time")
-                .eq("status", NotificationStatus.New)
-                .or()
-                .eq("status", NotificationStatus.Read);
+                .and(wrapper -> wrapper.eq("status", NotificationStatus.New)
+                        .or()
+                        .eq("status", NotificationStatus.Read))
+                .orderByDesc("create_time");
         return Result.success(notificationDao.selectList(query));
     }
 
