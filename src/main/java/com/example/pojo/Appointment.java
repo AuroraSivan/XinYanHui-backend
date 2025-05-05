@@ -42,6 +42,8 @@ public class Appointment {
 
     private String consultantName;
 
+    private String UserName;
+
     public Appointment() {
     }
 

@@ -114,6 +114,11 @@ public class AppointmentServiceImpl implements AppointmentService {
             appointment.setConsultantName(consultantName);
         }
 
+        for (Appointment appointment : appointments) {
+            String userName = appointmentRepository.findUserNameByUserId(appointment.getUserId());
+            appointment.setUserName(userName);
+        }
+
         return Result.success(appointments, "查询成功");
     }
 
@@ -134,6 +139,16 @@ public class AppointmentServiceImpl implements AppointmentService {
             appointments = appointments.stream()
                     .filter(appointment -> appointmentStatus.equals(appointment.getStatus()))
                     .collect(Collectors.toList());
+        }
+
+        for (Appointment appointment : appointments) {
+            String consultantName = appointmentRepository.findConsultantNameById(appointment.getConsultantId());
+            appointment.setConsultantName(consultantName);
+        }
+
+        for (Appointment appointment : appointments) {
+            String userName = appointmentRepository.findUserNameByUserId(appointment.getUserId());
+            appointment.setUserName(userName);
         }
 
         return Result.success(appointments, "查询成功");
