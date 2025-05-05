@@ -28,12 +28,12 @@ public interface ConsultantSchedulesRepository {
     @Select("SELECT * FROM ConsultantSchedules WHERE status = #{status}")
     List<ConsultantSchedule> getScheduleByStatus(String status);
 
-    @Select("SELECT * FROM ConsultantSchedules WHERE consultant_id = #{consultantId}")
+    @Select("SELECT * FROM ConsultantSchedules WHERE consultant_id = #{consultantId} AND available_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 2 MONTH) AND DATE_ADD(CURDATE(), INTERVAL 1 MONTH)")
     List<ConsultantSchedule> getConsultantScheduleById(Integer consultantId);
 
-    @Select("SELECT * FROM SupervisorSchedules WHERE supervisor_id = #{supervisorId}")
+    @Select("SELECT * FROM SupervisorSchedules WHERE supervisor_id = #{supervisorId} AND available_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 2 MONTH) AND DATE_ADD(CURDATE(), INTERVAL 1 MONTH)")
     List<SupervisorSchedule> getSupervisorScheduleById(Integer supervisorId);
 
-    @Select("SELECT * FROM ConsultantSchedules WHERE schedule_id = #{scheduleId}")
+    @Select("SELECT * FROM ConsultantSchedules WHERE schedule_id = #{scheduleId} AND available_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 2 MONTH) AND DATE_ADD(CURDATE(), INTERVAL 1 MONTH)")
     ConsultantSchedule getConsultantScheduleByScheduleId(Integer scheduleId);
 }
