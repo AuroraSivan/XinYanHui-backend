@@ -156,7 +156,10 @@ public class SessionRecordServiceImpl implements SessionRecordService {
         if (list == null) {
             return Result.error("未找到会话");
         }
-        int averageRating = list.stream().mapToInt(ConsultationSession::getRating).sum() / list.size();
+        int averageRating = 0;
+        if(!list.isEmpty()){
+            averageRating = list.stream().mapToInt(ConsultationSession::getRating).sum() / list.size();
+        }
         map.put("averageRate", averageRating);
         map.put("sessionList", list);
         return Result.success(map);
