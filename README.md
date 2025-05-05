@@ -99,9 +99,10 @@ ws://localhost:8080/observe
 
 #### 参数
 
-| Key   | value | description |
-| ----- | ----- | ----------- |
-| token |       | Jwt令牌     |
+| Key       | value | description                      |
+| --------- | ----- | -------------------------------- |
+| token     |       | Jwt令牌                          |
+| sessionId |       | 被监听的来访和咨询师聊天的会话id |
 
 #### 接收消息格式
 

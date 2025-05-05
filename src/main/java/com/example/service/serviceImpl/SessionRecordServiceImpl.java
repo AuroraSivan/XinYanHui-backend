@@ -186,4 +186,50 @@ public class SessionRecordServiceImpl implements SessionRecordService {
         }
         return Result.success(list);
     }
+
+    @Override
+    public Result<List<Map<String, Object>>> getSessionsWithNameByConsultantId(int consultantId, LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startTime= startDate==null ? null : startDate.atStartOfDay();
+        LocalDateTime endTime= endDate==null ? null : endDate.atTime(23,59,59);
+        List<Map<String,Object>> list =consultationSessionDao.getSessionWithNameByConsultantId(consultantId, startTime, endTime);
+        if(list==null){
+            return Result.error("未找到会话");
+        }
+        return Result.success(list);
+    }
+
+    @Override
+    public Result<List<Map<String, Object>>> getSessionsWithNameByUserId(int userId, LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startTime= startDate==null ? null : startDate.atStartOfDay();
+        LocalDateTime endTime= endDate==null ? null : endDate.atTime(23,59,59);
+        List<Map<String, Object>> list = consultationSessionDao.getSessionWithNameByUserId(userId, startTime, endTime);
+        if(list==null){
+            return Result.error("未找到会话");
+        }
+        return Result.success(list);
+    }
+
+    @Override
+    public Result<List<Map<String, Object>>> getRecordsWithNameByConsultantId(int consultantId, LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startTime= startDate==null ? null : startDate.atStartOfDay();
+        LocalDateTime endTime= endDate==null ? null : endDate.atTime(23,59,59);
+        List<Map<String, Object>> list = supervisorConsultationDao.findWithNameByConsultantId(consultantId, startTime, endTime);
+        if(list==null){
+            return Result.error("无数据");
+        }
+        return Result.success(list);
+    }
+
+    @Override
+    public Result<List<Map<String, Object>>> getRecordsWithNameBySupervisorId(int supervisorId, LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startTime= startDate==null ? null : startDate.atStartOfDay();
+        LocalDateTime endTime= endDate==null ? null : endDate.atTime(23,59,59);
+        List<Map<String, Object>> list = supervisorConsultationDao.findWithNameBySupervisorId(supervisorId, startTime, endTime);
+        if(list==null){
+            return Result.error("无数据");
+        }
+        return Result.success(list);
+    }
+
+
 }

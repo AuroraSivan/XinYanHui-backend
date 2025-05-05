@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -27,4 +28,9 @@ public interface ConsultationSessionDao extends BaseMapper<ConsultationSession> 
     List<Map<String,Object>> getAbnormalConsultation();
 
     List<Map<String,Object>> getWeeklyConsultation(Integer num);
+
+    List<Map<String,Object>> getSessionWithNameByConsultantId(Integer consultantId, LocalDateTime startTime, LocalDateTime endTime);
+
+    List<Map<String,Object>> getSessionWithNameByUserId(Integer userId,LocalDateTime startTime, LocalDateTime endTime);
+
 }
