@@ -22,4 +22,32 @@
         GROUP BY YEARWEEK(start_time, 1)
         ORDER BY week_start;
     </select>
+
+    <select id="getSessionWithNameByConsultantId" resultType="map">
+        SELECT session_id AS sessionId, user_id AS userId, user_username AS username,
+               consultant_id AS consultantId, consultant_name AS consultantName,
+                start_time AS startTime, end_time AS endTime,rating,feedback
+        FROM ConsultationSessionsWithNames
+        WHERE consultant_id = #{consultantId} AND session_status='completed'
+        <if test="startTime!=null">
+            AND start_time >= #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND start_time &lt;= #{endTime}
+        </if>
+    </select>
+
+    <select id="getSessionWithNameByUserId" resultType="map">
+        SELECT session_id AS sessionId, user_id AS userId, user_username AS username,
+        consultant_id AS consultantId, consultant_name AS consultantName,
+        start_time AS startTime, end_time AS endTime,rating,feedback
+        FROM ConsultationSessionsWithNames
+        WHERE user_id = #{userId} AND session_status='completed'
+        <if test="startTime!=null">
+            AND start_time >= #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND start_time &lt;= #{endTime}
+        </if>
+    </select>
 </mapper>

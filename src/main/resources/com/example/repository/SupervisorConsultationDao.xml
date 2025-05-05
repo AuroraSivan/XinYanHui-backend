@@ -11,4 +11,34 @@
         WHERE sc.response_time IS NULL
         AND sc.request_time &lt;= NOW() - INTERVAL 5 MINUTE
     </select>
+
+    <select id="findWithNameBySupervisorId" resultType="map">
+        SELECT record_id AS recordId,session_id AS sessionId,
+        consultant_id AS consultantId, consultant_name AS consultantName,
+        supervisor_id AS supervisorId, supervisor_name AS supervisorName,
+        request_time AS requestTime, response_time AS responseTime
+        FROM SupervisorConsultationsWithNames
+        WHERE supervisor_id = #{supervisorId}
+        <if test="startTime!=null">
+            AND request_time >= #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND request_time &lt;= #{endTime}
+        </if>
+    </select>
+
+    <select id="findWithNameByConsultantId" resultType="map">
+        SELECT record_id AS recordId,session_id AS sessionId,
+        consultant_id AS consultantId, consultant_name AS consultantName,
+        supervisor_id AS supervisorId, supervisor_name AS supervisorName,
+        request_time AS requestTime, response_time AS responseTime
+        FROM SupervisorConsultationsWithNames
+        WHERE consultant_id = #{consultantId}
+        <if test="startTime!=null">
+            AND request_time >= #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND request_time &lt;= #{endTime}
+        </if>
+    </select>
 </mapper>

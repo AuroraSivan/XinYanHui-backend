@@ -28,16 +28,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IOException.class)
     public Result ioExceptionHandler(IOException e){
+        log.error("异常:{}",e.getMessage());
         return Result.error("读取数据异常");
     }
 
     @ExceptionHandler(ServletRequestBindingException.class)
     public Result servletRequestBindingExceptionHandler(ServletRequestBindingException e){
+        log.error("异常:{}",e.getMessage());
         return Result.error("请求参数异常");
     }
 
     @ExceptionHandler(TypeMismatchException.class)
     public Result typeMismatchExceptionHandler(TypeMismatchException e){
+        log.error("异常:{}",e.getMessage());
         return Result.error("参数类型错误");
     }
 }

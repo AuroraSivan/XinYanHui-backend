@@ -9,6 +9,7 @@ import com.example.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -78,13 +79,17 @@ public class ChatController {
     }
 
     @GetMapping("/user/session/list")
-    public Result<List<ConsultationSession>> getSessionsByUserId(@RequestParam Integer userId){
-        return sessionRecordService.getSessionsByUserId(userId);
+    public Result<List<Map<String,Object>>> getSessionsByUserId(@RequestParam Integer userId,
+                                                                @RequestParam(required = false) LocalDate startDate ,
+                                                                @RequestParam(required = false) LocalDate endDate){
+        return sessionRecordService.getSessionsWithNameByUserId(userId, startDate, endDate);
     }
 
     @GetMapping("/internal/session/list")
-    public Result<List<ConsultationSession>> getSessionsByConsultantId(@RequestParam Integer consultantId){
-        return sessionRecordService.getSessionsByConsultantId(consultantId);
+    public Result<List<Map<String,Object>>> getSessionsByConsultantId(@RequestParam Integer consultantId,
+                                                                      @RequestParam(required = false) LocalDate startDate ,
+                                                                      @RequestParam(required = false) LocalDate endDate){
+        return sessionRecordService.getSessionsWithNameByConsultantId(consultantId,startDate,endDate);
     }
 
     @GetMapping("/internal/evaluation")
@@ -93,13 +98,17 @@ public class ChatController {
     }
 
     @GetMapping("/internal/supervise/list/consultant")
-    public Result<List<SupervisorConsultation>> getRecordsByConsultantId(@RequestParam Integer consultantId){
-        return sessionRecordService.getRecordsByConsultantId(consultantId);
+    public Result<List<Map<String,Object>>> getRecordsByConsultantId(@RequestParam Integer consultantId,
+                                                                     @RequestParam(required = false) LocalDate startDate,
+                                                                     @RequestParam(required = false) LocalDate endDate){
+        return sessionRecordService.getRecordsWithNameByConsultantId(consultantId,startDate,endDate);
     }
 
     @GetMapping("/internal/supervise/list/supervisor")
-    public Result<List<SupervisorConsultation>> getRecordsBySupervisorId(@RequestParam Integer supervisorId){
-        return sessionRecordService.getRecordsBySupervisorId(supervisorId);
+    public Result<List<Map<String,Object>>> getRecordsBySupervisorId(@RequestParam Integer supervisorId,
+                                                                     @RequestParam(required = false) LocalDate startDate,
+                                                                     @RequestParam(required = false) LocalDate endDate){
+        return sessionRecordService.getRecordsWithNameBySupervisorId(supervisorId,startDate,endDate);
     }
 
 }
