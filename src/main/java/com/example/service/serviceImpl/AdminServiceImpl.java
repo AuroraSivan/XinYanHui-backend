@@ -153,4 +153,20 @@ public class AdminServiceImpl implements AdminService {
         }
         return Result.success(scheduleList);
     }
+
+    @Override
+    public Result<Consultant> deleteConsultant(Integer id) {
+        if(consultantDao.dismissal(id)==0){
+            return Result.error("删除失败");
+        }
+        return Result.success();
+    }
+
+    @Override
+    public Result<Supervisor> deleteSupervisor(Integer id) {
+        if(supervisorDao.dismissal(id)==0){
+            return Result.error("删除失败");
+        }
+        return Result.success();
+    }
 }

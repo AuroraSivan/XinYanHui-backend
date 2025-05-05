@@ -43,8 +43,9 @@
     <select id="getAllConsultants" resultType="com.example.pojo.Consultant">
         SELECT consultant_id,name,professional_info
         FROM Consultants
+        WHERE employed=true
         <if test ="supervisorId!=null">
-            WHERE supervisor_id=#{supervisorId}
+            AND supervisor_id=#{supervisorId}
         </if>
     </select>
 

@@ -75,4 +75,21 @@ public class AdminController {
         }
         return adminService.manageSupervisorSchedule(schedule);
     }
+
+    @DeleteMapping("/consultant")
+    public Result<Consultant> deleteConsultant(@RequestParam Integer consultantId) {
+        if(consultantId==null){
+            return Result.error("参数错误");
+        }
+        return adminService.deleteConsultant(consultantId);
+    }
+
+    @DeleteMapping("/supervisor")
+    public Result<Supervisor> deleteSupervisor(@RequestParam Integer supervisorId) {
+        if(supervisorId==null){
+            return Result.error("参数错误");
+        }
+        return adminService.deleteSupervisor(supervisorId);
+    }
+
 }

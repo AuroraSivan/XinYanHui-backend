@@ -19,9 +19,11 @@ public class Consultant {
     private String salt;
     private String token;
     private Integer supervisorId;
+    private Boolean employed=true;
 
     public Consultant() {
         // Default constructor
+        this.employed=true;
     }
 
 }

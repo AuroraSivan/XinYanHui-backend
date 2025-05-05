@@ -19,4 +19,8 @@ public interface AdminService {
     Result<List<Map<String,Object>>> manageConsultantSchedule(List<Map<String,Object>> scheduleList);
 
     Result<List<Map<String,Object>>> manageSupervisorSchedule(List<Map<String,Object>> scheduleList);
+
+    Result<Consultant> deleteConsultant(Integer id);
+
+    Result<Supervisor> deleteSupervisor(Integer id);
 }

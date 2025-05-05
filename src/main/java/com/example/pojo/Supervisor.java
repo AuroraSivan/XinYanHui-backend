@@ -18,8 +18,10 @@ public class Supervisor {
     private String password;
     private String salt;
     private String token;
+    private Boolean employed=true;
 
     public Supervisor() {
+        this.employed=true;
     }
 
 }

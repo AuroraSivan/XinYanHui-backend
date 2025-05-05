@@ -5,6 +5,7 @@ import com.example.pojo.Consultant;
 import com.example.pojo.MorningAvailableRecord;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 @Mapper
 public interface ConsultantDao  {
-    @Select("select consultant_id,name,professional_info,password_HashwithSalt,salt from Consultants where consultant_id=#{Id} and password_HashwithSalt=#{password}")
+    @Select("select consultant_id,name,professional_info,password_HashwithSalt,salt from Consultants where consultant_id=#{Id} and password_HashwithSalt=#{password} and employed=true")
     Consultant getByIdAndPassword(Integer Id, String password);   //通过id和密码查询，此处密码指密码哈希值
 
     @Select("select salt from Consultants where consultant_id=#{Id}")
@@ -46,4 +47,7 @@ public interface ConsultantDao  {
     Integer findSupervisorIdById(Integer id);
 
     List<Map<String,Object>> getConsultantWeeklyTime();
+
+    @Update("update Consultants set employed=false where consultant_id= #{id}")
+    Integer dismissal(Integer id);
 }
