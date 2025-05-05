@@ -50,4 +50,7 @@ public interface AppointmentRepository {
 
     @Select("SELECT * FROM Appointments WHERE consultant_id = #{id} AND appointment_date = #{date} AND appointment_time >= #{start} AND appointment_time <= #{end}")
     List<Appointment> findByConsultantSchedule(Integer id,  LocalDate date,LocalTime start, LocalTime end);
+
+    @Select("SELECT username FROM users WHERE user_id = #{userId}")
+    String findUserNameByUserId(Integer userId);
 }
