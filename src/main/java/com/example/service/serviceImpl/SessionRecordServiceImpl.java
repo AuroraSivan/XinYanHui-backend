@@ -54,6 +54,13 @@ public class SessionRecordServiceImpl implements SessionRecordService {
         QueryWrapper<ConsultationSession> query = new QueryWrapper<>();
         query.eq("user_id", userId)
                 .ge("start_time", LocalDateTime.now().minusHours(2));
+        Short isAvailable = consultantDao.getAvailableStatus(consultantId);
+        if(isAvailable==null){
+            return Result.error("当前时段咨询师不值班,无法开启新会话,请更换咨询师");
+        }
+        else if(isAvailable==0){
+            return Result.error("咨询师忙碌,无法开启新会话,请更换咨询师");
+        }
         if (consultationSessionDao.selectCount(query) > 0) {
             return Result.error("两小时内已存在会话,当前无法开启新会话");
         }
