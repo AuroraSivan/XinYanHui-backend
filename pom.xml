@@ -155,13 +155,6 @@
             <artifactId>poi-ooxml</artifactId>
             <version>4.1.2</version>
         </dependency>
-
-        <!-- poi-tl 模板导出（Word 渲染模板） -->
-        <dependency>
-            <groupId>com.deepoove</groupId>
-            <artifactId>poi-tl</artifactId>
-            <version>1.10.0</version>
-        </dependency>
     </dependencies>
 
     <build>
