@@ -2,6 +2,7 @@ package com.example.service.serviceImpl;
 
 import com.alibaba.fastjson.JSON;
 import com.example.constants.ChatConstant;
+import com.example.pojo.ChatExportVo;
 import com.example.pojo.ChatMsg;
 import com.example.repository.ChatLogDao;
 import com.example.service.ChatLogService;
@@ -61,5 +62,25 @@ public class ChatLogServiceImpl implements ChatLogService {
             return Result.error("无记录");
         }
         return Result.success(msgList);
+    }
+
+    @Override
+    public Result<List<ChatExportVo>> getExportDataBySessionId(Integer sessionId) {
+        List<ChatMsg> chatMsgs = chatLogDao.getSessionChatLog(sessionId); // 使用 chatLogDao
+
+        if (chatMsgs == null || chatMsgs.isEmpty()) {
+            return Result.error("无记录");
+        }
+
+        List<ChatExportVo> exportList = new ArrayList<>();
+        for (ChatMsg msg : chatMsgs) {
+            ChatExportVo vo = new ChatExportVo();
+            vo.setSender(msg.getSenderType() ? "咨询师" : "用户");
+            vo.setReceiver(msg.getSenderType() ? "用户" : "咨询师");
+            vo.setMessage(msg.getMsg());
+            vo.setTimestamp(msg.getTime());
+            exportList.add(vo);
+        }
+        return Result.success(exportList);
     }
 }
