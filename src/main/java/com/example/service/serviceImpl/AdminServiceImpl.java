@@ -15,10 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -100,75 +97,79 @@ public class AdminServiceImpl implements AdminService {
 
     @Transactional(rollbackFor = Exception.class)
     public Result<List<Map<String,Object>>> manageConsultantSchedule(List<Map<String,Object>> scheduleList) {
-        redisTemplate.multi();
-        for(Map<String,Object> map:scheduleList){
-            ConsultantSchedule schedule = generateConsultantSchedule(map);
-            if(schedule==null){
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                redisTemplate.discard();
-                return Result.error("参数错误");
-            }
+        List<String> addedRedisKeys = new ArrayList<>();
+        List<String> addedRedisValues = new ArrayList<>();
+        try {
+            for (Map<String, Object> map : scheduleList) {
+                ConsultantSchedule schedule = generateConsultantSchedule(map);
+                if (schedule == null) {
+                    throw new IllegalArgumentException("参数错误");
+                }
 
-            String day = (String)map.get("day");
+                String day = (String) map.get("day");
 
-            String key = ScheduleGenerator.getConsultantKey((String)map.get("time"),day);   //存入Redis并检查重复情况
-            String value = schedule.getConsultantId()+":"+map.get("name");
-            if(redisTemplate.opsForSet().add(key, value)==0L){
-                // 手动回滚事务
-                redisTemplate.discard();
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return Result.error("存在咨询师在某时间段已有排班");
-            }
-            redisTemplate.expire(key, 30L, TimeUnit.DAYS);
+                String key = ScheduleGenerator.getConsultantKey((String) map.get("time"), day);   //存入Redis并检查重复情况
+                String value = schedule.getConsultantId() + ":" + map.get("name");
+                if (redisTemplate.opsForSet().add(key, value) == 0L) {
+                    throw new IllegalStateException("存在督导在某时间段已有排班");
+                }
+                redisTemplate.expire(key, 30L, TimeUnit.DAYS);
+                addedRedisKeys.add(key);
+                addedRedisValues.add(value);
 
-            for(LocalDate date:ScheduleGenerator.generateDate(day)){  //生成日期
-                schedule.setAvailableDate(date);
-                if(consultantSchedulesRepository.insertSchedule(schedule)==0){
-                    // 手动回滚事务
-                    redisTemplate.discard();
-                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                    return Result.error("排班失败");
+                for (LocalDate date : ScheduleGenerator.generateDate(day)) {  //生成日期
+                    schedule.setAvailableDate(date);
+                    if (consultantSchedulesRepository.insertSchedule(schedule) == 0) {
+                        throw new RuntimeException("排班失败");
+                    }
                 }
             }
+            return Result.success(null);
+        } catch (Exception e) {
+            for (int i = 0; i < addedRedisKeys.size(); i++) {
+                redisTemplate.opsForSet().remove(addedRedisKeys.get(i), addedRedisValues.get(i));
+            }
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return Result.error(e.getMessage());
         }
-        redisTemplate.exec();
-        return Result.success(null);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public Result<List<Map<String,Object>>> manageSupervisorSchedule(List<Map<String,Object>> scheduleList) {
-        redisTemplate.multi();
-        for(Map<String,Object> map:scheduleList){
-            SupervisorSchedule schedule = generateSupervisorSchedule(map);
-            if(schedule==null){
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                redisTemplate.discard();
-                return Result.error("参数错误");
-            }
+        List<String> addedRedisKeys = new ArrayList<>();
+        List<String> addedRedisValues = new ArrayList<>();
+        try {
+            for (Map<String, Object> map : scheduleList) {
+                SupervisorSchedule schedule = generateSupervisorSchedule(map);
+                if (schedule == null) {
+                    throw new IllegalArgumentException("参数错误");
+                }
 
-            String day = (String)map.get("day");
-            String key = ScheduleGenerator.getSupervisorKey((String)map.get("time"),day);
-            String value = schedule.getSupervisorId()+":"+map.get("name");
-            if(redisTemplate.opsForSet().add(key,value )==0L){
-                // 手动回滚事务
-                redisTemplate.discard();
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return Result.error("存在督导在某时间段已有排班");
-            }
-            redisTemplate.expire(key, 30L, TimeUnit.DAYS);
+                String day = (String) map.get("day");
+                String key = ScheduleGenerator.getSupervisorKey((String) map.get("time"), day);
+                String value = schedule.getSupervisorId() + ":" + map.get("name");
+                if (redisTemplate.opsForSet().add(key, value) == 0L) {
+                    throw new IllegalStateException("存在督导在某时间段已有排班");
+                }
+                redisTemplate.expire(key, 30L, TimeUnit.DAYS);
+                addedRedisKeys.add(key);
+                addedRedisValues.add(value);
 
-            for(LocalDate date:ScheduleGenerator.generateDate(day)){
-                schedule.setAvailableDate(date);
-                if(supervisorDao.insertSchedule(schedule)==0){
-                    // 手动回滚事务
-                    redisTemplate.discard();
-                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                    return Result.error("排班失败");
+                for (LocalDate date : ScheduleGenerator.generateDate(day)) {
+                    schedule.setAvailableDate(date);
+                    if (supervisorDao.insertSchedule(schedule) == 0) {
+                        throw new RuntimeException("排班失败");
+                    }
                 }
             }
+            return Result.success(null);
+        }catch(Exception e){
+            for (int i = 0; i < addedRedisKeys.size(); i++) {
+                redisTemplate.opsForSet().remove(addedRedisKeys.get(i), addedRedisValues.get(i));
+            }
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return Result.error(e.getMessage());
         }
-        redisTemplate.exec();
-        return Result.success(null);
     }
 
     @Override
