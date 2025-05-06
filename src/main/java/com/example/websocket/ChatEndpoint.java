@@ -67,6 +67,9 @@ public class ChatEndpoint {
         if(reason.getCloseCode()== CloseReason.CloseCodes.CANNOT_ACCEPT){
             return ;
         }
+        else if(reason.getCloseCode().getCode()==4001){
+            chatService.removeAbnormalSession(sessionId);
+        }
         chatService.removeSession(sessionId, Id, userType, sessionType);
     }
 

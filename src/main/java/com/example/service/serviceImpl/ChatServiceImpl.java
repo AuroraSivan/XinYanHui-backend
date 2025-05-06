@@ -75,7 +75,6 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    @Transactional
     public void addSession(String sessionId, int id, String userType, int sessionType, Session session) {
         //判断是否是已完成的会话,是则关闭session
         if( (sessionType==0 && isSessionCompleted(sessionId)) || (sessionType==1 && isSupervisorCompleted(sessionId))){
@@ -142,7 +141,6 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    @Transactional
     public void removeSession(String sessionId, int id, String userType, int sessionType) {
         Session session=null;     //用于获取会话中另一方的session
         if(userType.equals("user")){
@@ -198,7 +196,6 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    @Transactional
     public void sendMessage(String sessionId, int senderId, String userType, int sessionType, String message) {
         Session session = null;
         if(userType.equals("user") || userType.equals("supervisor")){  //要发送消息给咨询师
@@ -268,6 +265,14 @@ public class ChatServiceImpl implements ChatService {
             //发送消息
             session.getBasicRemote().sendText(message);
         }
+    }
+
+    @Override
+    public void removeAbnormalSession(String sessionId) {  //移除异常会话,主要指咨询师未及时应答的情况
+        onlineUsers.remove(sessionId);
+        QueryWrapper<ConsultationSession> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("session_id", Integer.parseInt(sessionId));
+        consultationSessionDao.delete(queryWrapper);
     }
 
 

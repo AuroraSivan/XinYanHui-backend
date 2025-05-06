@@ -10,4 +10,5 @@ public interface ChatService {
     void sendMessage(String sessionId,int senderId,String userType, int sessionType,String message);
     void broadcast(String sessionId, int sessionType,String message) throws IOException;
     void broadcast(String message) throws IOException;
+    void removeAbnormalSession(String sessionId);
 }
