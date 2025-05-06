@@ -28,4 +28,8 @@ public interface AdminService {
     Result<Set<String>> getConsultantNextSchedule(String day, String time);
 
     Result<Set<String>> getSupervisorNextSchedule(String day, String time);
+
+    Result<Map<String,Object>> deleteSupervisorSchedule(Map<String,Object> map);
+
+    Result<Map<String,Object>> deleteConsultantSchedule(Map<String,Object> map);
 }

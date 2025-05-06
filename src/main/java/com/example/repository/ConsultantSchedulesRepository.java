@@ -2,10 +2,7 @@ package com.example.repository;
 
 import com.example.pojo.ConsultantSchedule;
 import com.example.pojo.SupervisorSchedule;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -36,4 +33,9 @@ public interface ConsultantSchedulesRepository {
 
     @Select("SELECT * FROM ConsultantSchedules WHERE schedule_id = #{scheduleId} AND available_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 2 MONTH) AND DATE_ADD(CURDATE(), INTERVAL 1 MONTH)")
     ConsultantSchedule getConsultantScheduleByScheduleId(Integer scheduleId);
+
+    @Delete("DELETE FROM ConsultantSchedules WHERE consultant_id=#{consultantId} AND available_date=#{availableDate} AND start_time=#{startTime}")
+    Integer deleteConsultantSchedule(ConsultantSchedule schedule);
+
+
 }

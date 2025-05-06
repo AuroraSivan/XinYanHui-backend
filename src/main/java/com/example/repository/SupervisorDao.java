@@ -3,10 +3,7 @@ package com.example.repository;
 import com.example.pojo.Consultant;
 import com.example.pojo.Supervisor;
 import com.example.pojo.SupervisorSchedule;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -32,4 +29,7 @@ public interface SupervisorDao{
 
     @Update("update Supervisors set employed=false where supervisor_id= #{id}")
     Integer dismissal(Integer id);
+
+    @Delete("DELETE FROM SupervisorSchedules WHERE supervisor_id=#{supervisorId} AND available_date=#{availableDate} AND start_time=#{startTime}")
+    Integer deleteSchedule(SupervisorSchedule schedule);
 }

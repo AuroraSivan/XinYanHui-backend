@@ -109,4 +109,14 @@ public class AdminController {
         return adminService.getSupervisorNextSchedule(day,time);
     }
 
+    @DeleteMapping("/schedule/consultant")
+    public Result<Map<String,Object>> deleteConsultantSchedule(@RequestBody Map<String,Object> map) {
+        return adminService.deleteConsultantSchedule(map);
+    }
+
+    @DeleteMapping("/schedule/supervisor")
+    public Result<Map<String,Object>> deleteSupervisorSchedule(@RequestBody Map<String,Object> map) {
+        return adminService.deleteSupervisorSchedule(map);
+    }
+
 }
