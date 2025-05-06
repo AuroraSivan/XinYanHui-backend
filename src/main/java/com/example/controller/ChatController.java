@@ -1,6 +1,5 @@
 package com.example.controller;
 
-import com.deepoove.poi.XWPFTemplate;
 import com.example.pojo.ChatExportVo;
 import com.example.pojo.ChatMsg;
 import com.example.pojo.ConsultationSession;
@@ -10,15 +9,12 @@ import com.example.service.SessionRecordService;
 import com.example.utils.Result;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.InputStream;
+import java.io.*;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @RestController
 public class ChatController {
@@ -121,40 +117,36 @@ public class ChatController {
     @GetMapping("/internal/session/export")
     public void exportChatHistory(@RequestParam Integer sessionId, HttpServletResponse response) {
         try {
-            // 获取包装结果
             Result<List<ChatExportVo>> result = chatLogService.getExportDataBySessionId(sessionId);
-
-            // 判断是否成功
             if (!"1".equals(result.getCode())) {
                 response.setContentType("text/plain;charset=utf-8");
                 response.getWriter().write("导出失败: " + result.getMsg());
                 return;
             }
 
-            List<ChatExportVo> chatList = result.getData();  // 解包获取数据
-            System.out.println("chatList size = " + chatList.size());
-            if (!chatList.isEmpty()) {
-                System.out.println("First message: " + chatList.get(0));
+            List<ChatExportVo> chatList = result.getData();
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("聊天记录导出\n\n");
+            for (ChatExportVo chat : chatList) {
+                sb.append("发送方: ").append(chat.getSender()).append("\n");
+                sb.append("接收方: ").append(chat.getReceiver()).append("\n");
+                sb.append("内容: ").append(chat.getMessage()).append("\n");
+                sb.append("时间: ").append(chat.getTimestamp()).append("\n\n");
             }
 
-            Map<String, Object> data = new HashMap<>();
-            data.put("chatList", chatList);
+            // 设置响应头为 txt 文件下载
+            response.setContentType("text/plain;charset=utf-8");
+            response.setHeader("Content-Disposition", "attachment; filename=chat_session_" + sessionId + ".txt");
 
-            ClassPathResource resource = new ClassPathResource("templates/chat_template.docx");
-            InputStream inputStream = resource.getInputStream();
-
-            XWPFTemplate template = XWPFTemplate.compile(inputStream).render(data);
-
-            response.setContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-            response.setHeader("Content-Disposition", "attachment; filename=chat_session_" + sessionId + ".docx");
-
-            template.writeAndClose(response.getOutputStream());
+            // 写入内容
+            response.getWriter().write(sb.toString());
         } catch (Exception e) {
             e.printStackTrace();
             try {
                 response.setContentType("text/plain;charset=utf-8");
-                response.getWriter().write("导出失败，服务器异常！");
-            } catch (Exception ignored) {}
+                response.getWriter().write("导出失败: " + e.getMessage());
+            } catch (IOException ignored) {}
         }
     }
 }
