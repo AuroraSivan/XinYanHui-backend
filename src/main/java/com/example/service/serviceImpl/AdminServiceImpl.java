@@ -100,10 +100,12 @@ public class AdminServiceImpl implements AdminService {
 
     @Transactional(rollbackFor = Exception.class)
     public Result<List<Map<String,Object>>> manageConsultantSchedule(List<Map<String,Object>> scheduleList) {
+        redisTemplate.multi();
         for(Map<String,Object> map:scheduleList){
             ConsultantSchedule schedule = generateConsultantSchedule(map);
             if(schedule==null){
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                redisTemplate.discard();
                 return Result.error("参数错误");
             }
 
@@ -113,6 +115,7 @@ public class AdminServiceImpl implements AdminService {
             String value = schedule.getConsultantId()+":"+map.get("name");
             if(redisTemplate.opsForSet().add(key, value)==0L){
                 // 手动回滚事务
+                redisTemplate.discard();
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return Result.error("存在咨询师在某时间段已有排班");
             }
@@ -122,20 +125,24 @@ public class AdminServiceImpl implements AdminService {
                 schedule.setAvailableDate(date);
                 if(consultantSchedulesRepository.insertSchedule(schedule)==0){
                     // 手动回滚事务
+                    redisTemplate.discard();
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return Result.error("排班失败");
                 }
             }
         }
+        redisTemplate.exec();
         return Result.success(null);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public Result<List<Map<String,Object>>> manageSupervisorSchedule(List<Map<String,Object>> scheduleList) {
+        redisTemplate.multi();
         for(Map<String,Object> map:scheduleList){
             SupervisorSchedule schedule = generateSupervisorSchedule(map);
             if(schedule==null){
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                redisTemplate.discard();
                 return Result.error("参数错误");
             }
 
@@ -144,6 +151,7 @@ public class AdminServiceImpl implements AdminService {
             String value = schedule.getSupervisorId()+":"+map.get("name");
             if(redisTemplate.opsForSet().add(key,value )==0L){
                 // 手动回滚事务
+                redisTemplate.discard();
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return Result.error("存在督导在某时间段已有排班");
             }
@@ -153,11 +161,13 @@ public class AdminServiceImpl implements AdminService {
                 schedule.setAvailableDate(date);
                 if(supervisorDao.insertSchedule(schedule)==0){
                     // 手动回滚事务
+                    redisTemplate.discard();
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return Result.error("排班失败");
                 }
             }
         }
+        redisTemplate.exec();
         return Result.success(null);
     }
 
@@ -242,7 +252,7 @@ public class AdminServiceImpl implements AdminService {
             if(consultantSchedulesRepository.deleteConsultantSchedule(schedule)==0){
                 // 手动回滚事务
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return Result.error("排班失败");
+                return Result.error("删除排班失败");
             }
         }
         return Result.success(map);
