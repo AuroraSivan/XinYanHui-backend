@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/internal/admin")
@@ -90,6 +91,22 @@ public class AdminController {
             return Result.error("参数错误");
         }
         return adminService.deleteSupervisor(supervisorId);
+    }
+
+    @GetMapping("/schedule/consultant")
+    public Result<Set<String>> getConsultantNextSchedule(@RequestParam String day, @RequestParam String time) {
+        if(day==null || time==null || day.isEmpty() || time.isEmpty()){
+            return Result.error("参数错误");
+        }
+        return adminService.getConsultantNextSchedule(day,time);
+    }
+
+    @GetMapping("/schedule/supervisor")
+    public Result<Set<String>> getSupervisorNextSchedule(@RequestParam String day, @RequestParam String time) {
+        if(day==null || time==null || day.isEmpty() || time.isEmpty()){
+            return Result.error("参数错误");
+        }
+        return adminService.getSupervisorNextSchedule(day,time);
     }
 
 }

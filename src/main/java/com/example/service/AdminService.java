@@ -7,6 +7,7 @@ import com.example.utils.Result;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface AdminService {
 
@@ -23,4 +24,8 @@ public interface AdminService {
     Result<Consultant> deleteConsultant(Integer id);
 
     Result<Supervisor> deleteSupervisor(Integer id);
+
+    Result<Set<String>> getConsultantNextSchedule(String day, String time);
+
+    Result<Set<String>> getSupervisorNextSchedule(String day, String time);
 }

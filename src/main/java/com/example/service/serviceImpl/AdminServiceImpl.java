@@ -9,13 +9,17 @@ import com.example.service.AdminService;
 import com.example.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -25,6 +29,7 @@ public class AdminServiceImpl implements AdminService {
     private final ConsultantDao consultantDao;
     private final SupervisorDao supervisorDao;
     private final ConsultantSchedulesRepository consultantSchedulesRepository;
+    private StringRedisTemplate redisTemplate;
 
     @Autowired
     public AdminServiceImpl(AdminDao adminDao, ConsultantDao consultantDao, SupervisorDao supervisorDao,
@@ -33,6 +38,11 @@ public class AdminServiceImpl implements AdminService {
         this.consultantDao = consultantDao;
         this.supervisorDao = supervisorDao;
         this.consultantSchedulesRepository = consultantSchedulesRepository;
+    }
+
+    @Autowired
+    public void setRedisTemplate(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
     }
 
     public Result<Admin> loginService(Integer AdminId, String password) {
@@ -90,68 +100,78 @@ public class AdminServiceImpl implements AdminService {
 
     @Transactional(rollbackFor = Exception.class)
     public Result<List<Map<String,Object>>> manageConsultantSchedule(List<Map<String,Object>> scheduleList) {
-        LocalDate firstDay = ScheduleGenerator.getFirstDayOfNextMonth();
-        LocalDate lastDay = ScheduleGenerator.getLastDayOfNextMonth(firstDay);
         for(Map<String,Object> map:scheduleList){
             ConsultantSchedule schedule = new ConsultantSchedule();
-            if(map.get("consultantId")==null){
-                return Result.error("参数错误");
-            }
-            schedule.setConsultantId((Integer)map.get("consultantId"));
-            if(map.get("time").equals("AM")){
-                schedule.setStartTime(8);
-                schedule.setEndTime(12);
-            }
-            else{
-                schedule.setStartTime(13);
-                schedule.setEndTime(17);
-            }
-
+            Integer consultantId = (Integer)map.get("consultantId");
+            String Time = (String)map.get("time");
             String day = (String)map.get("day");
-            if(day==null){
+            String name = (String)map.get("name");
+            if(consultantId==null || Time==null || day==null || name==null){
                 return Result.error("参数错误");
             }
-            for(LocalDate date:ScheduleGenerator.generateDate(firstDay,lastDay,day)){
+            schedule.setConsultantId(consultantId);
+
+            int[] time = ScheduleGenerator.getTime(Time);  //处理时间
+            schedule.setStartTime(time[0]);
+            schedule.setEndTime(time[1]);
+
+
+            String key = ScheduleGenerator.getConsultantKey(Time,day);   //存入Redis并检查重复情况
+            String value = consultantId+":"+name;
+            if(redisTemplate.opsForSet().add(key, value)==0L){
+                // 手动回滚事务
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return Result.error("存在咨询师在某时间段已有排班");
+            }
+            redisTemplate.expire(key, 30L, TimeUnit.DAYS);
+
+            for(LocalDate date:ScheduleGenerator.generateDate(day)){  //生成日期
                 schedule.setAvailableDate(date);
                 if(consultantSchedulesRepository.insertSchedule(schedule)==0){
-                    return Result.error("未知异常");
+                    // 手动回滚事务
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                    return Result.error("排班失败");
                 }
             }
         }
-        return Result.success(scheduleList);
+        return Result.success(null);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public Result<List<Map<String,Object>>> manageSupervisorSchedule(List<Map<String,Object>> scheduleList) {
-        LocalDate firstDay = ScheduleGenerator.getFirstDayOfNextMonth();
-        LocalDate lastDay = ScheduleGenerator.getLastDayOfNextMonth(firstDay);
         for(Map<String,Object> map:scheduleList){
             SupervisorSchedule schedule = new SupervisorSchedule();
-            if(map.get("supervisorId")==null){
-                return Result.error("参数错误");
-            }
-            schedule.setSupervisorId((Integer)map.get("supervisorId"));
-            if(map.get("time").equals("AM")){
-                schedule.setStartTime(8);
-                schedule.setEndTime(12);
-            }
-            else{
-                schedule.setStartTime(13);
-                schedule.setEndTime(17);
-            }
-
+            Integer supervisorId = (Integer)map.get("supervisorId");
+            String Time = (String)map.get("time");
             String day = (String)map.get("day");
-            if(day==null){
+            String name = (String)map.get("name");
+            if(map.get("supervisorId")==null || Time==null || day==null || name==null){
                 return Result.error("参数错误");
             }
-            for(LocalDate date:ScheduleGenerator.generateDate(firstDay,lastDay,day)){
+            schedule.setSupervisorId(supervisorId);
+            int[] time = ScheduleGenerator.getTime(Time);   //获取开始时间和结束时间
+            schedule.setStartTime(time[0]);
+            schedule.setEndTime(time[1]);
+
+            String key = ScheduleGenerator.getSupervisorKey(Time,day);
+            String value = schedule.getSupervisorId()+":"+name;
+            if(redisTemplate.opsForSet().add(key,value )==0L){
+                // 手动回滚事务
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return Result.error("存在督导在某时间段已有排班");
+            }
+            redisTemplate.expire(key, 30L, TimeUnit.DAYS);
+
+            for(LocalDate date:ScheduleGenerator.generateDate(day)){
                 schedule.setAvailableDate(date);
                 if(supervisorDao.insertSchedule(schedule)==0){
-                    return Result.error("未知异常");
+                    // 手动回滚事务
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                    return Result.error("排班失败");
                 }
             }
         }
-        return Result.success(scheduleList);
+        return Result.success(null);
     }
 
     @Override
@@ -168,5 +188,25 @@ public class AdminServiceImpl implements AdminService {
             return Result.error("删除失败");
         }
         return Result.success();
+    }
+
+    @Override
+    public Result<Set<String>> getConsultantNextSchedule(String day, String time) {
+        String key = ScheduleGenerator.getConsultantKey(time,day);
+        Set<String> set = redisTemplate.opsForSet().members(key);
+        if(set==null){
+            return Result.error("获取失败，该时间段暂无排班");
+        }
+        return Result.success(set);
+    }
+
+    @Override
+    public Result<Set<String>> getSupervisorNextSchedule(String day, String time) {
+        String key = ScheduleGenerator.getSupervisorKey(time,day);
+        Set<String> set = redisTemplate.opsForSet().members(key);
+        if(set==null){
+            return Result.error("获取失败，该时间段暂无排班");
+        }
+        return Result.success(set);
     }
 }
