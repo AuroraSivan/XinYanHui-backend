@@ -1,3 +1,31 @@
+## Demo
+
+https://www.bilibili.com/video/BV1MSEjzfEm5?share_source=copy_web
+
+
+
+## 前端代码
+
+https://github.com/nodddt/SoulCare-Staff
+
+https://github.com/aayc123/XinYanHui-frontend
+
+
+
+## 数据库设计
+
+MySQL创建表脚本：/data/xinyanhui_structure_20250509.sql
+
+插入数据脚本：/data/xinyanhui_data_only_20250509.sql
+
+创建视图脚本：/data/views_create.sql
+
+部分用户账号及明文密码：/data/Data.xlsx
+
+
+
+## http接口设计
+
 接口文档：https://xinyanhuiteam.postman.co/workspace/xinyanhui~c77005d1-b448-408c-93e2-555e484fa8d7/collection/43016002-73a9fe89-25d7-4690-96ff-590b0330658c?action=share&creator=43016002
 
 
